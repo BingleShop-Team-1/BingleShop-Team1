@@ -9,7 +9,6 @@ app.use(express.urlencoded({ extended: true }))
 
 //load view engine using ejs
 app.set('view engine', 'ejs')
-console.log(bcrypt.hashSync('12345', 10));
 const userList = [
     {
         id: parseInt(1),
@@ -42,13 +41,15 @@ app.post('/login', (req, res) => {
     const { email, password } = req.body;
 
     const user = userList.find((u) => u.email == email)
+    console.log(user)
     if (user) {
         const isValidPassword = bcrypt.compareSync(password, user.password)
-        if (!isValidPassword) {
-            return res.status(400).send("Email atau password salah")
+        if (isValidPassword) {
+            return res.sendStatus(200)
         }
+        return res.status(400).send("Email atau password salah")
     }
-    res.sendStatus(200)
+    return res.status(400).send('email tidak terdaftar')
 })
 
 app.get('/register', (req, res) => res.render('register'))
@@ -59,6 +60,7 @@ app.post("/register", (req, res) => {
         email,
         password: bcrypt.hashSync(password, 10)
     })
+    console.log(userList);
     return res.sendStatus(201)
 })
 

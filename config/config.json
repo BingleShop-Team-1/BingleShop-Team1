@@ -2,7 +2,7 @@
   "development": {
     "username": "postgres",
     "password": "postgresql",
-    "database": "test",
+    "database": "bingle",
     "host": "127.0.0.1",
     "port": "5432",
     "dialect": "postgres"

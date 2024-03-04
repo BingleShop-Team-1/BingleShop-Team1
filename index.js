@@ -1,5 +1,6 @@
 const express = require('express')
 const bcrypt = require('bcrypt')
+const { User, Order, Item } = require('./models')
 
 const app = express()
 const port = 3002
@@ -9,40 +10,14 @@ app.use(express.urlencoded({ extended: true }))
 
 //load view engine using ejs
 app.set('view engine', 'ejs')
-const userList = [
-    {
-        id: parseInt(1),
-        name: "user 1",
-        email: "user1@mail.com",
-        password: "$2b$10$awDLXFTjbzVFrbfLp8t.peuv0pgcbu/rsVmp.BuZlrzpB4vXnqFWm", // bcrypt.hashSync('12345', 10),
-        active: true
-    }
-];
-const itemList = [
-    {
-        id: parseInt(1),
-        name: "item 1",
-        description: "description item 1",
-        stock: 10,
-        price: 1000
-    }
-];
-const orderList = [
-    {
-        id: parseInt(1),
-        user_id: 1,
-        item_id: 1,
-        quantity: 2
-    }
-];
 
 app.get('/login', (req, res) => res.render('login'))
-app.post('/login', (req, res) => {
+app.post('/login', async (req, res) => {
     const { email, password } = req.body;
 
-    const user = userList.find((u) => u.email == email)
-    console.log(user)
-    if (user) {
+    const user = await User.findOne({ where: { email: email } });
+
+    if (user != undefined) {
         const isValidPassword = bcrypt.compareSync(password, user.password)
         if (isValidPassword) {
             return res.sendStatus(200)
@@ -53,112 +28,119 @@ app.post('/login', (req, res) => {
 })
 
 app.get('/register', (req, res) => res.render('register'))
-app.post("/register", (req, res) => {
-    const { email, password } = req.body
-    userList.push({
-        id: parseInt(userList[userList.length - 1]?.id + 1 || 1),
-        email,
-        password: bcrypt.hashSync(password, 10)
-    })
-    console.log(userList);
+app.post("/register", async (req, res) => {
+    const { name, address, email, password } = req.body
+
+    const user = new User
+    user.name = name
+    user.email = email
+    user.address = address
+    user.password = bcrypt.hashSync(password, 10)
+    await user.save()
+
     return res.sendStatus(201)
 })
 
+app.get('/users', (req, res) => getList(req, res, User))
+app.post('/users', async (req, res) => {
+    const { name, address, email, password } = req.body
 
-app.get('/users', (req, res) => getList(req, res, userList))
-app.get('/items', (req, res) => getList(req, res, itemList))
-app.get('/orders', (req, res) => getList(req, res, orderList))
+    const user = new User
+    user.name = name
+    user.email = email
+    user.address = address
+    user.password = bcrypt.hashSync(password, 10)
+    await user.save()
 
-app.post('/users', (req, res) => {
-    const { name, email, active } = req.body
-
-    const id = parseInt(userList[userList.length - 1].id) + 1
-    userList.push({ id, name, email, active })
-
-    res.status(204)
+    return res.sendStatus(201)
 })
-app.post('/items', (req, res) => {
-    const { name, description, stock } = req.body
+app.put('/users/:id', async (req, res) => {
+    const id = req.params.id
+    const { name, address, email, password } = req.body
 
-    const id = parseInt(itemList[itemList.length - 1].id) + 1
-    itemList.push({ id, name, email, active })
+    const user = User.findByPk(id)
+    if (user != undefined) {
+        user.name = name
+        user.email = email
+        user.address = address
+        user.password = bcrypt.hashSync(password, 10)
+        await user.save()
 
-    res.status(204)
+        return res.sendStatus(204)
+    }
+
+    return res.sendStatus(404)
 })
+app.delete('/users/:id', async (req, res) => {
+    const id = req.params.id
+
+    const user = await User.findByPk(id)
+    if (user != undefined) {
+        await User.destroy({
+            where: {
+              id: id
+            }
+          });
+        return res.sendStatus(204)
+    }
+
+    return res.sendStatus(404)
+})
+
+app.get('/items', (req, res) => getList(req, res, Item))
+app.post('/items', async (req, res) => {
+    const { name, description, image, stock, price } = req.body
+
+    const item = new Item
+    item.name = name
+    item.description = description
+    item.image = image
+    item.stock = stock
+    item.price = price
+    await item.save()
+
+    return res.sendStatus(201)
+})
+app.put('/items/:id', async (req, res) => {
+    const id = req.params.id
+    const { name, description, image, stock, price } = req.body
+
+    const item = Item.findByPk(id)
+    if (item != undefined) {
+        item.name = name
+        item.description = description
+        item.image = image
+        item.stock = stock
+        item.price = price
+        await item.save()
+
+        return res.sendStatus(201)
+    }
+
+    return res.sendStatus(404)
+
+})
+app.delete('/items/:id', async (req, res) => {
+    const id = req.params.id
+
+    const item = await Item.findByPk(id)
+    if (item != undefined) {
+        await item.destroy({
+            where: {
+              id: id
+            }
+          });
+        return res.sendStatus(204)
+    }
+
+    return res.sendStatus(404)
+})
+
+app.get('/orders', (req, res) => getList(req, res, Order))
 app.post('/orders', (req, res) => {
     res.status(204)
 })
-
-app.put('/users/:id', (req, res) => {
-    const id = req.params.id
-    const { name, email, active } = req.body
-
-    index = userList.findIndex((user) => user.id == id)
-
-    if (index == -1) {
-        return res.status(404).json({
-            message: "user not found. id: " + id,
-        })
-    }
-
-    userList[index].name = name
-    userList[index].email = email
-    userList[index].active = active
-
-    res.status(204)
-})
-app.put('/items/:id', (req, res) => {
-    const id = req.params.id
-    const { name, description, stock } = req.body
-
-    index = itemList.findIndex((item) => item.id == id)
-
-    if (index == -1) {
-        return res.status(404).json({
-            message: "item not found. id: " + id,
-        })
-    }
-
-    itemList[index].name = name
-    itemList[index].description = description
-    itemList[index].stock = stock
-
-    res.status(204)
-})
 app.put('/orders/:id', (req, res) => {
-    res.status(204)
-})
-
-app.delete('/users/:id', (req, res) => {
-    const id = req.params.id
-
-    let index = userList.findIndex((user) => user.id == id)
-
-    if (index == -1) {
-        return res.status(404).json({
-            message: "user not found. id: " + id,
-            data: [],
-        })
-    }
-
-    userList.splice(index, 1) // delete item in array || // delete userList[index] // delete returns to null
-
-    res.status(204)
-})
-app.delete('/items/:id', (req, res) => {
-    const id = req.params.id
-
-    let index = itemList.findIndex((item) => item.id == id)
-
-    if (index == -1) {
-        return res.status(404).json({
-            message: "item not found. id: " + id,
-            data: [],
-        })
-    }
-
-    itemList.splice(index, 1)
-
     res.status(204)
 })
 app.delete('/orders/:id', (req, res) => {
@@ -169,9 +151,10 @@ app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)
 })
 
-function getList(req, res, list) {
-    res.status(200).json({
-        message: "get list",
-        data: list
+async function getList(req, res, Model) {
+    const data = await Model.findAll()
+    return res.status(200).json({
+        success: 1,
+        data: data
     })
 }

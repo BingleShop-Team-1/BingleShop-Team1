@@ -78,9 +78,9 @@ app.delete('/users/:id', async (req, res) => {
     if (user != undefined) {
         await User.destroy({
             where: {
-              id: id
+                id: id
             }
-          });
+        });
         return res.sendStatus(204)
     }
 
@@ -127,24 +127,40 @@ app.delete('/items/:id', async (req, res) => {
     if (item != undefined) {
         await item.destroy({
             where: {
-              id: id
+                id: id
             }
-          });
+        });
         return res.sendStatus(204)
     }
 
     return res.sendStatus(404)
 })
 
-app.get('/orders', (req, res) => getList(req, res, Order))
-app.post('/orders', (req, res) => {
-    res.status(204)
+app.post('/orders', async (req, res) => {
+    const { user_id, item_id, status, quantity } = req.body
+
+    const order = new Order
+    order.user_id = user_id
+    order.item_id = item_id
+    order.status = status
+    order.quantity = quantity
+    await order.save()
+
+    return res.sendStatus(201)
 })
-app.put('/orders/:id', (req, res) => {
-    res.status(204)
-})
-app.delete('/orders/:id', (req, res) => {
-    res.status(204)
+app.post('/orders/:id/update-status', async (req, res) => {
+    const id = req.params.id
+    const { status } = req.body
+
+    const order = Order.findByPk(id)
+    if (order != undefined) {
+        order.status = status
+        await order.save()
+
+        return res.sendStatus(201)
+    }
+
+    return res.sendStatus(404)
 })
 
 app.listen(port, () => {

@@ -18,8 +18,9 @@ module.exports = {
         type: Sequelize.BIGINT
       },
       status: {
-        defaultValue: true,
-        type: Sequelize.BOOLEAN
+        allowNull: false,
+        defaultValue: 'pending',
+        type: Sequelize.ENUM('pending','success'),
       },
       quantity: {
         allowNull: false,

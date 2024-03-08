@@ -11,6 +11,8 @@ app.use(express.urlencoded({ extended: true }))
 //load view engine using ejs
 app.set('view engine', 'ejs')
 
+const statusOrder = ['pending', 'success']
+
 app.get('/login', (req, res) => res.render('login'))
 app.post('/login', async (req, res) => {
     const { email, password } = req.body;
@@ -22,9 +24,17 @@ app.post('/login', async (req, res) => {
         if (isValidPassword) {
             return res.sendStatus(200)
         }
-        return res.status(400).send("Email atau password salah")
+
+        return res.status(422).json({
+            status: false,
+            error: "Wrong email or password"
+        })
     }
-    return res.status(400).send('email tidak terdaftar')
+
+    return res.status(422).json({
+        status: false,
+        error: "Email is not registered"
+    })
 })
 
 app.get('/register', (req, res) => res.render('register'))
@@ -137,27 +147,38 @@ app.delete('/items/:id', async (req, res) => {
 })
 
 app.post('/orders', async (req, res) => {
-    const { user_id, item_id, status, quantity } = req.body
+    const { user_id, item_id, quantity } = req.body
 
     const order = new Order
     order.user_id = user_id
     order.item_id = item_id
-    order.status = status
     order.quantity = quantity
     await order.save()
 
     return res.sendStatus(201)
 })
-app.post('/orders/:id/update-status', async (req, res) => {
+app.patch('/orders/:id/update-status', async (req, res) => {
     const id = req.params.id
     const { status } = req.body
+
+    checkStatus = statusOrder.includes(status)
+
+    if (! checkStatus) {
+        return res.status(422).json({
+            status: false,
+            error: 'Status not matched'
+        })
+    }
 
     const order = Order.findByPk(id)
     if (order != undefined) {
         order.status = status
         await order.save()
 
-        return res.sendStatus(201)
+        return res.send(200).json({
+            success: true,
+            data: order
+        })
     }
 
     return res.sendStatus(404)
@@ -170,7 +191,7 @@ app.listen(port, () => {
 async function getList(req, res, Model) {
     const data = await Model.findAll()
     return res.status(200).json({
-        success: 1,
+        success: true,
         data: data
     })
 }

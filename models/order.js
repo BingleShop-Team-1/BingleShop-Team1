@@ -16,7 +16,7 @@ module.exports = (sequelize, DataTypes) => {
   Order.init({
     user_id: DataTypes.BIGINT,
     item_id: DataTypes.BIGINT,
-    status: DataTypes.BOOLEAN,
+    status: DataTypes.ENUM('pending','success'),
     quantity: DataTypes.INTEGER
   }, {
     sequelize,

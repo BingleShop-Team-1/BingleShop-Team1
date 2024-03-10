@@ -68,7 +68,7 @@ app.put('/users/:id', async (req, res) => {
     const id = req.params.id
     const { name, address, email, password } = req.body
 
-    const user = User.findByPk(id)
+    const user = await User.findByPk(id)
     if (user != undefined) {
         user.name = name
         user.email = email

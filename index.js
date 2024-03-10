@@ -146,6 +146,7 @@ app.delete('/items/:id', async (req, res) => {
     return res.sendStatus(404)
 })
 
+app.get('/orders', (req, res) => getList(req, res, Order))
 app.post('/orders', async (req, res) => {
     const { user_id, item_id, quantity } = req.body
 
@@ -170,15 +171,12 @@ app.patch('/orders/:id/update-status', async (req, res) => {
         })
     }
 
-    const order = Order.findByPk(id)
+    const order = await Order.findByPk(id)
     if (order != undefined) {
         order.status = status
         await order.save()
 
-        return res.send(200).json({
-            success: true,
-            data: order
-        })
+        return res.sendStatus(200)
     }
 
     return res.sendStatus(404)

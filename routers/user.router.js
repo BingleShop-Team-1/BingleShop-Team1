@@ -8,22 +8,15 @@ router.post("/register", async (req, res) => {
     const { name, password, email, address } = req.body;
     
     // Cari apakah Username atau Email sudah ada di database
-    const existingName = await User.findOne({ where: { name } });
     const existingEmail = await User.findOne({ where: { email } });
 
     // Enkripsi Password
     hashedPassword = await bcrypt.hash(password, 10);
 
     // Jika Username & Password tidak diisi
-    if (!name || !password) {
+    if (!email || !password || !name ) {
         return res.status(400).send({ 
-            message: "Silakan isikan Username & Password"
-        });
-    }
-    // Jika Username telah digunakan
-    else if (existingName){
-        return res.send({ 
-            message: "Username telah digunakan"
+            message: "Silakan isikan Email, Password, dan Nama Lengkap"
         });
     }
     // Jika Email telah digunakan
@@ -53,7 +46,7 @@ router.post("/register", async (req, res) => {
 
 
 // Route mengambil semua data user dari database
-router.get('/users', (req, res) => getList(req, res, User))
+router.get('/', (req, res) => getList(req, res, User))
 
 
 
@@ -99,7 +92,7 @@ router.post("/login", async (req,res) => {
 
 
 // Route untuk melakukan update info user
-router.put('/users/:id'), async (req, res) => {
+router.put('/:id'), async (req, res) => {
     const id = req.params.id;
     const { name, address, email, odlPassword, newPassword } = req.body;
     
@@ -148,7 +141,7 @@ router.put('/users/:id'), async (req, res) => {
 
 
 // Route untuk melakukan delete akun user, memerlukan password
-router.delete('/users/:id', async (req, res) => {
+router.delete('/:id', async (req, res) => {
     const id = req.params.id;
     const { password } = req.body;
 

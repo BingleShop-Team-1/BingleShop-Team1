@@ -1,7 +1,6 @@
 var express = require('express');
 var router = express.Router();
 
-/* GET home page. */
 router.get('/', (req, res) => getList(req, res, Order))
 router.post('/', async (req, res) => {
     const { user_id, item_id, quantity } = req.body

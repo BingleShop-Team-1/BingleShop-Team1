@@ -1,19 +1,16 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
-const {User, Order} = require("./models");
-const {
-  getItems,
-  createItem,
-  updateItem,
-  deleteItem,
-} = require("./controllers/item.controller.js");
+const {User} = require("./models");
+
+const router = require("./routers");
 
 const app = express();
+app.use(express.json());
 const port = 3002;
 
-app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 
+app.use(router);
 //load view engine using ejs
 app.set("view engine", "ejs");
 
@@ -98,47 +95,6 @@ app.delete("/users/:id", async (req, res) => {
       },
     });
     return res.sendStatus(204);
-  }
-
-  return res.sendStatus(404);
-});
-
-app.get("/items", getItems);
-app.post("/items", createItem);
-app.put("/items/:id", updateItem);
-app.delete("/items/:id", deleteItem);
-
-app.get("/orders", (req, res) => getList(req, res, Order));
-app.post("/orders", async (req, res) => {
-  const {user_id, item_id, quantity} = req.body;
-
-  const order = new Order();
-  order.user_id = user_id;
-  order.item_id = item_id;
-  order.quantity = quantity;
-  await order.save();
-
-  return res.sendStatus(201);
-});
-app.patch("/orders/:id/update-status", async (req, res) => {
-  const id = req.params.id;
-  const {status} = req.body;
-
-  checkStatus = statusOrder.includes(status);
-
-  if (!checkStatus) {
-    return res.status(422).json({
-      status: false,
-      error: "Status not matched",
-    });
-  }
-
-  const order = await Order.findByPk(id);
-  if (order != undefined) {
-    order.status = status;
-    await order.save();
-
-    return res.sendStatus(200);
   }
 
   return res.sendStatus(404);

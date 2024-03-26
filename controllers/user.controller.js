@@ -1,9 +1,9 @@
-const {User} = require('../models')
+const { User } = require('../models')
 const bcrypt = require('bcrypt')
 
 const userRegister = async (req, res) => {
     const { name, password, email, address } = req.body;
-    
+
     // Cari apakah Username atau Email sudah ada di database
     const existingEmail = await User.findOne({ where: { email } });
 
@@ -11,14 +11,14 @@ const userRegister = async (req, res) => {
     hashedPassword = await bcrypt.hash(password, 10);
 
     // Jika Username & Password tidak diisi
-    if (!email || !password || !name ) {
-        return res.status(400).send({ 
+    if (!email || !password || !name) {
+        return res.status(400).send({
             message: "Silakan isikan Email, Password, dan Nama Lengkap"
         });
     }
     // Jika Email telah digunakan
-    else if (existingEmail){
-        return res.send({ 
+    else if (existingEmail) {
+        return res.send({
             message: "Email telah digunakan"
         });
     }
@@ -34,7 +34,7 @@ const userRegister = async (req, res) => {
         // Simpan pengguna baru ke dalam database
         await user.save();
 
-        return res.status(201).send({ 
+        return res.status(201).send({
             message: "Pengguna berhasil didaftarkan"
         });
     };
@@ -42,19 +42,22 @@ const userRegister = async (req, res) => {
 
 const getUsers = async (req, res) => {
     try {
-      const users = await User.findAll();
-      return res.status(200).json(users);
+        const users = await User.findAll();
+        return res.status(200).json({
+            success: true,
+            data: users
+        });
     } catch (error) {
-      return res.status(500).json({message: error.message});
+        return res.status(500).json({ message: error.message });
     }
 };
 
-const userLogin = async (req,res) => {
+const userLogin = async (req, res) => {
     const { email, password } = req.body;
     const user = await User.findOne({ where: { email } });
     // Jika Email dan Password kosong
     if (!email || !password) {
-        return res.status(400).send({ 
+        return res.status(400).send({
             message: "Silakan isikan Email & Password"
         });
     }
@@ -67,13 +70,13 @@ const userLogin = async (req,res) => {
     // Jika Email dan Password valid, dan Email ditemukan
     else {
         try {
-            const passwordMatch = await bcrypt.compare(password,user.password)
+            const passwordMatch = await bcrypt.compare(password, user.password)
             // Login Berhasil
             if (passwordMatch) {
                 return res.status(200).send({
                     message: "Login berhasil"
                 });
-            //Jika Password salah
+                //Jika Password salah
             } else {
                 return res.status(401).send({
                     message: "Kombinasi Email dan Password salah!"
@@ -90,7 +93,7 @@ const userLogin = async (req,res) => {
 const userUpdate = async (req, res) => {
     const id = req.params.id;
     const { name, address, email, oldPassword, newPassword } = req.body;
-    
+
     // Temukan pengguna berdasarkan ID
     const user = await User.findByPk(id);
     if (!user) {
@@ -100,15 +103,15 @@ const userUpdate = async (req, res) => {
     }
 
     // Periksa apakah oldPassword diberikan user?
-    if(oldPassword) {
+    if (oldPassword == null || oldPassword == "") {
         return res.status(401).send({
             message: "silakan masukkan Old Password"
         });
     }
 
     // Verifikasi Old Password
-    const passwordMatch = await bcrypt.compare(odlPassword, user.password);
-    if(!passwordMatch) {
+    const passwordMatch = await bcrypt.compare(oldPassword, user.password);
+    if (!passwordMatch) {
         return res.status(401).send({
             message: "Old Password salah!"
         });

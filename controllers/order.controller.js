@@ -1,8 +1,8 @@
-const { Order } = require('./models')
+const { Order } = require('../models')
 
 const statusOrder = ['pending', 'success']
 
-const getList = async (req, res) => {
+const getOrders = async (req, res) => {
     const data = await Order.findAll()
     return res.status(200).json({
         success: true,
@@ -22,7 +22,7 @@ const createOrder =  async (req, res) => {
     return res.sendStatus(201)
 }
 
-const updateStatus = async (req, res) => {
+const updateStatusOrder = async (req, res) => {
     const id = req.params.id
     const { status } = req.body
 
@@ -47,7 +47,7 @@ const updateStatus = async (req, res) => {
 }
 
 module.exports = {
-    getList,
+    getOrders,
     createOrder,
-    updateStatus
+    updateStatusOrder
 }

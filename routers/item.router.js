@@ -1,6 +1,4 @@
-const express = require("express");
-const router = express.Router();
-// const { Item } = require('../models'); // Pastikan path model Item sudah sesuai
+const router = require('express').Router();
 
 const controller = require("../controllers/item.controller");
 
@@ -11,5 +9,3 @@ router.put("/:id", controller.updateItem);
 router.delete("/:id", controller.deleteItem);
 
 module.exports = router;
-
-//Test

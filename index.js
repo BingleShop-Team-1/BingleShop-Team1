@@ -1,12 +1,13 @@
 const express = require("express");
 const router = require("./routers");
+require('dotenv').config()
 
 const app = express();
+const port = process.env.NODE_PORT;
 app.use(express.json());
-const port = 3002;
 
 app.use(router);
 
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
+  console.log(`BingleShop app listening on port ${port}`);
 });

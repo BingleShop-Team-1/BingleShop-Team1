@@ -92,7 +92,7 @@ const userLogin = async (req, res) => {
 
 const userUpdate = async (req, res) => {
     const id = req.params.id;
-    const { name, address, email, oldPassword, newPassword } = req.body;
+    const { name, address, email, oldPassword, newPassword, isAdmin } = req.body;
 
     // Temukan pengguna berdasarkan ID
     const user = await User.findByPk(id);
@@ -127,10 +127,10 @@ const userUpdate = async (req, res) => {
     user.name = name || user.name;
     user.email = email || user.email;
     user.address = address || user.address;
+    user.is_admin = isAdmin || user.is_admin;
     if (hashedNewPassword) {
         user.password = hashedNewPassword
     }
-
     // Simpan perubahan user ke database
     await user.save();
     return res.status(204).send()

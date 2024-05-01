@@ -1,5 +1,7 @@
 const { User } = require('../models')
 const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken');
+const secretKey =  process.env.JWT_SECRET || "rahasia";
 
 const userRegister = async (req, res) => {
     const { name, password, email, is_admin, address } = req.body;
@@ -187,5 +189,6 @@ module.exports = {
     getUsers,
     userLogin,
     userUpdate,
-    userDelete
+    userDelete,
+    whoAmI
 }

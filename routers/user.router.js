@@ -12,4 +12,6 @@ router.put('/:id', verifyToken, controller.userUpdate);
 
 router.delete('/:id', verifyToken, controller.userDelete);
 
+router.get('/whoami', verifyToken, controller.whoAmI);
+
 module.exports = router;

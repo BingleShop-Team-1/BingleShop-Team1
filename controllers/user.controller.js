@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const secretKey =  process.env.JWT_SECRET || "rahasia";
 
 const userRegister = async (req, res) => {
-    const { name, password, email, role, address } = req.body;
+    const { name, password, email, is_admin, address } = req.body;
 
     // Cari apakah Username atau Email sudah ada di database
     const existingEmail = await User.findOne({ where: { email } });
@@ -30,7 +30,7 @@ const userRegister = async (req, res) => {
         const user = new User
         user.name = name
         user.email = email
-        user.role = role
+        user.is_admin = is_admin
         user.address = address
         user.password = hashedPassword
 
@@ -77,7 +77,7 @@ const userLogin = async (req, res) => {
             // Login Berhasil
             if (passwordMatch) {
                 const token = jwt.sign(
-                    { name: user.name, email: user.email, role: user.role }, 
+                    { name: user.name, email: user.email, is_admin: user.is_admin }, 
                     secretKey, 
                     { expiresIn: '1h' })
                 return res.status(200).json({
@@ -180,8 +180,8 @@ const whoAmI = (req, res) => {
     }
 
     // Kembalikan data user yang relevan
-    const { name, email, role } = req.user;
-    return res.status(200).json({ name, email, role });
+    const { name, email, is_admin } = req.user;
+    return res.status(200).json({ name, email, is_admin });
 };
 
 module.exports = {

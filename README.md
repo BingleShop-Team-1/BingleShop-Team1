@@ -24,6 +24,12 @@ binar platinum challenge back-end javascript wave 10
 6. Ask for review
 7. After approved, then can be merged + delete branch
 
+### using env
+1. buat file `.env` pada directory terluar
+2. copy isi file `.env.example` dan pastekan pada file `.env`
+3. isi `.env`
+4. jalankan `nodemon`
+
 ### link
 - postman collection
   ```

@@ -1,8 +1,10 @@
 const { User } = require('../models')
 const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken');
+const secretKey =  process.env.JWT_SECRET || "rahasia";
 
 const userRegister = async (req, res) => {
-    const { name, password, email, address } = req.body;
+    const { name, password, email, is_admin, address } = req.body;
 
     // Cari apakah Username atau Email sudah ada di database
     const existingEmail = await User.findOne({ where: { email } });
@@ -28,6 +30,7 @@ const userRegister = async (req, res) => {
         const user = new User
         user.name = name
         user.email = email
+        user.is_admin = is_admin
         user.address = address
         user.password = hashedPassword
 
@@ -73,8 +76,13 @@ const userLogin = async (req, res) => {
             const passwordMatch = await bcrypt.compare(password, user.password)
             // Login Berhasil
             if (passwordMatch) {
-                return res.status(200).send({
-                    message: "Login berhasil"
+                const token = jwt.sign(
+                    { name: user.name, email: user.email, is_admin: user.is_admin }, 
+                    secretKey, 
+                    { expiresIn: '1h' })
+                return res.status(200).json({
+                    message: "Login berhasil",
+                    token
                 });
                 //Jika Password salah
             } else {
@@ -166,10 +174,21 @@ const userDelete = async (req, res) => {
     }
 }
 
+const whoAmI = (req, res) => {
+   if (!req.user) {
+        return res.status(401).send({ message: "Unauthorized - No user data found in token." });
+    }
+
+    // Kembalikan data user yang relevan
+    const { name, email, is_admin } = req.user;
+    return res.status(200).json({ name, email, is_admin });
+};
+
 module.exports = {
     userRegister,
     getUsers,
     userLogin,
     userUpdate,
-    userDelete
+    userDelete,
+    whoAmI
 }

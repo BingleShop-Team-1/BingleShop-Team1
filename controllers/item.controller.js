@@ -1,4 +1,5 @@
 const {Item} = require("../models");
+const {uploadCloud} = require("../libs/media.handling");
 
 module.exports = {
   getItems: async (req, res) => {
@@ -10,12 +11,13 @@ module.exports = {
     }
   },
   createItem: async (req, res) => {
-    const {name, description, image, stock, price} = req.body;
+    const {name, description, stock, price} = req.body;
+    const image_url = await uploadCloud(req.file.path);
     try {
       const item = new Item();
       item.name = name;
       item.description = description;
-      item.image = image;
+      item.image = image_url;
       item.stock = stock;
       item.price = price;
       await item.save();
@@ -26,13 +28,16 @@ module.exports = {
   },
   updateItem: async (req, res) => {
     const id = req.params.id;
-    const {name, description, image, stock, price} = req.body;
+    const {name, description, stock, price} = req.body;
+    let image_url = req.body.image; // gunakan gambar lama jika tidak ada gambar baru yang diunggah
+    if (req.file) image_url = await uploadCloud(req.file.path); // unggah gambar baru jika ada
+
     const item = await Item.findByPk(id);
     if (!item) return res.sendStatus(404);
     try {
       item.name = name;
       item.description = description;
-      item.image = image;
+      item.image = image_url;
       item.stock = stock;
       item.price = price;
       await item.save();

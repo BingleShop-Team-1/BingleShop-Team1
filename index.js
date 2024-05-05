@@ -1,4 +1,6 @@
 const express = require("express");
+
+const passport = require('./libs/passport');
 const router = require("./routers");
 require('dotenv').config()
 

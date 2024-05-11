@@ -5,7 +5,7 @@ const { User } = require('../models')
 
 passport.use(new JwtStrategy({
     jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-    secretOrKey: JWT_SECRET_KEY
+    secretOrKey: "rahasia"
 }, (payload, done) => {
     User.findByPk(payload.id)
     .then((user) => done(null, user))

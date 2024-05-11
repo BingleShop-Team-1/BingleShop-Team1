@@ -1,4 +1,5 @@
 const router = require("express").Router();
+const { isAdmin, isAuthenticated } = require('../middlewares');
 
 const controller = require("../controllers/item.controller");
 const {uploader} = require("../libs/media.handling");

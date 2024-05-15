@@ -48,7 +48,7 @@ module.exports = {
       return res.status(500).json({message: error.message});
     }
   },
-  deleteItem: async (req, res) => {
+  adminDeleteItem: async (req, res) => {
     const id = req.params.id;
     const item = await Item.findByPk(id);
     try {

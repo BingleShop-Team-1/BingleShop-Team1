@@ -6,26 +6,24 @@ const secretKey =  process.env.JWT_SECRET || "rahasia";
 const userRegister = async (req, res) => {
     const { name, password, email, is_admin, address } = req.body;
 
-    // Cari apakah Username atau Email sudah ada di database
-    const existingEmail = await User.findOne({ where: { email } });
-
-    // Enkripsi Password
-    hashedPassword = await bcrypt.hash(password, 10);
-
-    // Jika Username & Password tidak diisi
     if (!email || !password || !name) {
         return res.status(400).send({
             message: "Silakan isikan Email, Password, dan Nama Lengkap"
         });
     }
-    // Jika Email telah digunakan
-    else if (existingEmail) {
+    // Cari apakah Username atau Email sudah ada di database
+    const existingEmail = await User.findOne({ where: { email } });
+    if (existingEmail) {
         return res.send({
             message: "Email telah digunakan"
         });
     }
+
+    // Enkripsi Password
+    hashedPassword = await bcrypt.hash(password, 10);
+
     // Register berhasil
-    else {
+    {
         // Buat instance baru dari model User
         const user = new User
         user.name = name

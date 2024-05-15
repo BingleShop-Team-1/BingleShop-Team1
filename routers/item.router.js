@@ -6,8 +6,8 @@ const {uploader} = require("../libs/media.handling");
 
 router.get("/", controller.getItems);
 // router.get("/:id", ); //blm buat function get id
-router.post("/", uploader.single("image"), controller.createItem);
-router.put("/:id", uploader.single("image"), controller.updateItem);
-router.delete("/:id", controller.deleteItem);
+router.post("/", isAdmin, uploader.single("image"), controller.adminCreateItem);
+router.put("/:id", isAdmin, uploader.single("image"), controller.adminUpdateItem);
+router.delete("/:id", isAdmin, controller.deleteItem);
 
 module.exports = router;

@@ -1,4 +1,4 @@
-const {Item} = require("../models");
+const {Product} = require("../models");
 const {uploadCloud} = require("../libs/media.handling");
 
 module.exports = {
@@ -10,7 +10,7 @@ module.exports = {
       return res.status(500).json({message: error.message});
     }
   },
-  createItem: async (req, res) => {
+  adminCreateItem: async (req, res) => {
     const {name, description, stock, price} = req.body;
     const image_url = await uploadCloud(req.file.path);
     try {
@@ -21,12 +21,14 @@ module.exports = {
       item.stock = stock;
       item.price = price;
       await item.save();
-      return res.sendStatus(201);
+      return res.json({
+        message: "Product created!"
+      });
     } catch (error) {
       return res.status(500).json({message: error.message});
     }
   },
-  updateItem: async (req, res) => {
+  adminUpdateItem: async (req, res) => {
     const id = req.params.id;
     const {name, description, stock, price} = req.body;
     let image_url = req.body.image; // gunakan gambar lama jika tidak ada gambar baru yang diunggah
@@ -46,7 +48,7 @@ module.exports = {
       return res.status(500).json({message: error.message});
     }
   },
-  deleteItem: async (req, res) => {
+  adminDeleteItem: async (req, res) => {
     const id = req.params.id;
     const item = await Item.findByPk(id);
     try {
@@ -63,4 +65,5 @@ module.exports = {
       return res.status(500).json({message: error.message});
     }
   },
+  listItems: (req, res) => res.sendStatus(200),
 };

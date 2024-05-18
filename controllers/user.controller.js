@@ -75,7 +75,7 @@ const userLogin = async (req, res) => {
             // Login Berhasil
             if (passwordMatch) {
                 const token = jwt.sign(
-                    { name: user.name, email: user.email, is_admin: user.is_admin }, 
+                    { id: user.id, name: user.name, email: user.email, is_admin: user.is_admin }, 
                     secretKey, 
                     { expiresIn: '1h' })
                 return res.status(200).json({

@@ -1,4 +1,4 @@
-const { Order } = require('../models')
+const { Order, OrderItem  } = require('../models')
 
 const statusOrder = ['pending', 'success']
 
@@ -11,13 +11,21 @@ const getOrders = async (req, res) => {
 }
 
 const createOrder =  async (req, res) => {
-    const { user_id, item_id, quantity } = req.body
+    const { item_id, quantity } = req.body
+
+    console.log(req.user)
 
     const order = new Order
-    order.user_id = user_id
-    order.item_id = item_id
-    order.quantity = quantity
+    order.user_id = req.user.id
+    order.total_quantity = 0
+    order.total_price = 0
     await order.save()
+
+    const orderItem = new OrderItem
+    orderItem.order_id = order.id
+    orderItem.item_id = item_id
+    orderItem.quantity = quantity
+    await orderItem.save()
 
     return res.sendStatus(201)
 }
@@ -43,7 +51,7 @@ const updateStatusOrder = async (req, res) => {
         return res.sendStatus(200)
     }
 
-    return res.sendStatus(404)
+    return res.sendStatus(400)
 }
 
 module.exports = {

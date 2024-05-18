@@ -1,4 +1,4 @@
-const {Product} = require("../models");
+const { Item } = require("../models");
 const {uploadCloud} = require("../libs/media.handling");
 
 module.exports = {
@@ -12,12 +12,12 @@ module.exports = {
   },
   adminCreateItem: async (req, res) => {
     const {name, description, stock, price} = req.body;
-    const image_url = await uploadCloud(req.file.path);
+    // const image_url = await uploadCloud(req.file.path);
     try {
       const item = new Item();
       item.name = name;
       item.description = description;
-      item.image = image_url;
+      item.image = "image_url";
       item.stock = stock;
       item.price = price;
       await item.save();

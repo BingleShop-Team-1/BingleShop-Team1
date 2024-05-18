@@ -4,7 +4,8 @@ const userRouter = require("./user.router");
 const itemRouter = require("./item.router");
 const orderRouter = require("./order.router");
 
-// routers.use('/users', userRouter);
+routers.get('/healthcheck', (req, res) => setTimeout(() => res.sendStatus(200), 10000));
+
 routers.use("/items", isAuthenticated, itemRouter);
 routers.use("/orders",isAuthenticated, orderRouter);
 routers.use("/users", userRouter);

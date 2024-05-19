@@ -25,7 +25,6 @@ module.exports = async (req, res, next) => {
     }
 
     const payload = jwt.decode(accessToken)
-    console.log(payload)
 
     const user = await User.findByPk(payload.id)
 

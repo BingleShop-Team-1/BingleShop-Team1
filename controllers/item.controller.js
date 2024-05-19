@@ -5,9 +5,15 @@ module.exports = {
   getItems: async (req, res) => {
     try {
       const items = await Item.findAll();
-      return res.status(200).json(items);
+      return res.status(200).json({
+        success: true,
+        data: items
+      });
     } catch (error) {
-      return res.status(500).json({message: error.message});
+      return res.status(500).json({
+        success: false,
+        message: error.message
+      });
     }
   },
   adminCreateItem: async (req, res) => {
@@ -65,5 +71,26 @@ module.exports = {
       return res.status(500).json({message: error.message});
     }
   },
-  listItems: (req, res) => res.sendStatus(200),
+  getDetailItem: async (req, res) => {
+    try {
+      const id = req.params.id
+      const items = await Item.findByPk(id);
+      if (items) {
+        return res.status(200).json({
+          success: true,
+          data: items
+        });
+      }
+
+      return res.status(400).json({
+        success: false,
+        message: 'Item not found'
+      });
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        message: error.message
+      });
+    }
+  },
 };

@@ -1,38 +1,28 @@
-const passport = require('../libs/passport');
-
-// module.exports = passport.authenticate('jwt', { session: false });
-
-const { User } = require('../models')
-const jwt = require('jsonwebtoken')
-
+const { User } = require('../models');
+const jwt = require('jsonwebtoken');
 const { JWT_SECRET_KEY } = process.env;
 
 module.exports = async (req, res, next) => {
-    const bearerToken = req.headers['authorization'] || ""; //Bearer oasdifhnaosiduyfgoaisdjfniasudyfghaiosdjfnoasidyufghaosdkjfh
+    const bearerToken = req.headers['authorization'] || "";
 
-    if (bearerToken === "" || bearerToken === "undefined") {
-        return res.sendStatus(401)
+    if (!bearerToken) {
+        return res.status(401).send({ message: "Unauthorized - No token provided." });
     } else if (!bearerToken.startsWith("Bearer ")) {
-        return res.sendStatus(401)
+        return res.status(401).send({ message: "Unauthorized - Invalid token format." });
     }
 
-    const accessToken = bearerToken.replace("Bearer ", "")
+    const accessToken = bearerToken.replace("Bearer ", "");
+    try {
+        const payload = jwt.verify(accessToken, JWT_SECRET_KEY);
+        const user = await User.findByPk(payload.id);
 
-    const isVerified = jwt.verify(accessToken, JWT_SECRET_KEY)
+        if (!user) {
+            return res.status(401).send({ message: "Unauthorized - No user data found in token." });
+        }
 
-    if (!isVerified) {
-        return res.sendStatus(401)
+        req.user = user;
+        next();
+    } catch (error) {
+        return res.status(401).send({ message: "Unauthorized - Invalid token." });
     }
-
-    const payload = jwt.decode(accessToken)
-    console.log(payload)
-
-    const user = await User.findByPk(payload.id)
-
-    if (!user) {
-        return res.sendStatus(401)
-    }
-
-    req.user = user;
-    return next();
-}
+};

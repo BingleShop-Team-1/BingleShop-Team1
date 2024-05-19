@@ -11,34 +11,37 @@ const userRegister = async (req, res) => {
             message: "Silakan isikan Email, Password, dan Nama Lengkap"
         });
     }
-    // Cari apakah Username atau Email sudah ada di database
-    const existingEmail = await User.findOne({ where: { email } });
-    if (existingEmail) {
-        return res.send({
-            message: "Email telah digunakan"
-        });
-    }
 
-    // Enkripsi Password
-    hashedPassword = await bcrypt.hash(password, 10);
+    try {
+        // Cari apakah Username atau Email sudah ada di database
+        const existingEmail = await User.findOne({ where: { email } });
+        if (existingEmail) {
+            return res.status(400).send({
+                message: "Email telah digunakan"
+            });
+        }
 
-    // Register berhasil
-    {
+        // Enkripsi Password
+        const hashedPassword = await bcrypt.hash(password, 10);
+
         // Buat instance baru dari model User
-        const user = new User
-        user.name = name
-        user.email = email
-        user.is_admin = is_admin
-        user.address = address
-        user.password = hashedPassword
-
-        // Simpan pengguna baru ke dalam database
-        await user.save();
+        const user = await User.create({
+            name,
+            email,
+            is_admin,
+            address,
+            password: hashedPassword
+        });
 
         return res.status(201).send({
             message: "Pengguna berhasil didaftarkan"
         });
-    };
+    } catch (error) {
+        console.error(error);
+        return res.status(500).send({
+            message: "Terjadi kesalahan saat mendaftarkan pengguna"
+        });
+    }
 };
 
 const getUsers = async (req, res) => {

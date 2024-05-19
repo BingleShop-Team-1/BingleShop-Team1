@@ -22,7 +22,7 @@ describe('POST /users/register', () => {
             name: 'New User',
             email: 'newuser@example.com',
             password: 'password123',
-            address: '123 New St.'
+            address: 'Yogyakarta'
         };
 
         const response = await request(app)

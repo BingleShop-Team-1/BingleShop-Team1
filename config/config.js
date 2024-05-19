@@ -16,7 +16,7 @@ module.exports = {
     host: process.env.DB_TEST_HOST || "127.0.0.1",
     port: process.env.DB_TEST_PORT || "5432",
     dialect: process.env.DB_TEST_DIALECT || "postgres",
-    logging: false,
+    logging: false // Tambahkan ini untuk mematikan logging,
   },
   production: {
     username: "root",

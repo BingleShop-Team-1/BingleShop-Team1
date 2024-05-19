@@ -4,7 +4,7 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "test": "jest --config=./test-integration/jest.config.js",
+    "test": "jest --config=./test-integration/jest.config.js --detectOpenHandles --forceExit",
     "start": "node server.js",
     "start-dev": "nodemon server.js",
     "http": "node server.js"
@@ -13,6 +13,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@faker-js/faker": "^8.4.1",
     "jest": "^29.7.0",
     "nodemon": "^3.0.3",
     "sequelize-cli": "^6.6.2",

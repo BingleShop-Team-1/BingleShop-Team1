@@ -5,13 +5,9 @@ const cloudinary = require("cloudinary").v2;
 const fs = require("fs");
 
 cloudinary.config({
-  // cloud_name: process.env.Name,
-  // api_key: process.env.Key,
-  // api_secret: process.env.Secret,
   secure: true,
 });
 
-// upload ke cloudinary
 const uploadCloud = async (file) => {
   try {
     const result = await cloudinary.uploader.upload(file);

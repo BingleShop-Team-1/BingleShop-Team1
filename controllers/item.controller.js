@@ -18,17 +18,19 @@ module.exports = {
   },
   adminCreateItem: async (req, res) => {
     const {name, description, stock, price} = req.body;
-    // const image_url = await uploadCloud(req.file.path);
+    const image_url = await uploadCloud(req.file.path);
+
     try {
       const item = new Item();
       item.name = name;
       item.description = description;
-      item.image = "image_url";
+      item.image = image_url;
       item.stock = stock;
       item.price = price;
       await item.save();
       return res.json({
-        message: "Product created!"
+        success: true,
+        data: item
       });
     } catch (error) {
       return res.status(500).json({message: error.message});

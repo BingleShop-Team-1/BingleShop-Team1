@@ -4,7 +4,7 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "test": "jest --runInBand --config=./test-integration/jest.config.js",
+    "test": "jest --config=./test-integration/jest.config.js",
     "start": "node server.js",
     "start-dev": "nodemon server.js",
     "http": "node server.js"

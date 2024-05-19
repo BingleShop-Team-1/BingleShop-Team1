@@ -5,12 +5,7 @@ const { describe, it, beforeAll, afterAll, beforeEach, expect } = require('@jest
 
 describe('POST /users/register', () => {
     beforeAll(async () => {
-        await sequelize.authenticate();
         await sequelize.sync({ force: true });
-    });
-
-    afterAll(async () => {
-        await sequelize.close();
     });
 
     beforeEach(async () => {

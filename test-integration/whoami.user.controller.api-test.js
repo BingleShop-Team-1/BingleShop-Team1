@@ -8,12 +8,7 @@ describe('GET /users/whoami', () => {
     let token;
 
     beforeAll(async () => {
-        await sequelize.authenticate();
         await sequelize.sync({ force: true });
-    });
-
-    afterAll(async () => {
-        await sequelize.close();
     });
 
     beforeEach(async () => {
@@ -23,7 +18,7 @@ describe('GET /users/whoami', () => {
             email: 'testuser@example.com',
             password: 'password123',
             is_admin: false,
-            address: '123 Test St.'
+            address: 'Yogyakarta'
         });
 
         token = jwt.sign({ id: user.id, name: user.name, email: user.email, is_admin: user.is_admin }, process.env.JWT_SECRET_KEY, { expiresIn: '1h' });

@@ -4,32 +4,43 @@ const multer = require("multer");
 const cloudinary = require("cloudinary").v2;
 const fs = require("fs");
 
-cloudinary.config({
-  secure: true,
-});
+let uploadCloud = async (file) => {}
 
-const uploadCloud = async (file) => {
-  try {
-    const result = await cloudinary.uploader.upload(file);
-    return result.secure_url;
-  } catch (error) {
-    console.log(error);
-  } finally {
-    fs.unlinkSync(file);
-  }
-};
+if (process.env.NODE_ENV === "test") {
+  cloudinary.config({
+    secure: true,
+  });
+  
+  uploadCloud = async (file) => {
+    try {
+      const result = await cloudinary.uploader.upload(file);
+      return result.secure_url;
+    } catch (error) {
+      console.log(error);
+    } finally {
+      fs.unlinkSync(file);
+    }
+  };
+
+} else {
+  uploadCloud = async file => ({
+    secure_url: "https://cloudinary/" + file
+  })
+}
 
 const localStore = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, "./uploads");
   },
   filename: function (req, file, cb) {
+    console.log(file.originalname);
     let fileName = String(Date.now()) + "-" + file.originalname;
     cb(null, fileName);
   },
 });
 
 const fillter = (req, file, cb) => {
+  console.log(file);
   if (["image/jpeg", "image/jpg", "image/png"].includes(file.mimetype)) {
     return cb(null, true);
   }

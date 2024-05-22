@@ -33,14 +33,12 @@ const localStore = multer.diskStorage({
     cb(null, "./uploads");
   },
   filename: function (req, file, cb) {
-    console.log(file.originalname);
     let fileName = String(Date.now()) + "-" + file.originalname;
     cb(null, fileName);
   },
 });
 
 const fillter = (req, file, cb) => {
-  console.log(file);
   if (["image/jpeg", "image/jpg", "image/png"].includes(file.mimetype)) {
     return cb(null, true);
   }

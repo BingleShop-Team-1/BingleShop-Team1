@@ -24,7 +24,6 @@ const userRegister = async (req, res) => {
     }
 
     try {
-        // Cari apakah Email sudah ada di database
         const existingEmail = await User.findOne({ where: { email } });
         if (existingEmail) {
             return res.status(400).send({
@@ -32,27 +31,22 @@ const userRegister = async (req, res) => {
             });
         }
 
-        // Enkripsi Password
         const hashedPassword = await bcrypt.hash(password, 10);
-
-        // Buat token verifikasi
         const verificationToken = jwt.sign({ email }, secretKey, { expiresIn: '1h' });
 
-        // Buat instance baru dari model User
         const user = await User.create({
             name,
             email,
             is_admin,
             address,
             password: hashedPassword,
-            is_verified: false,  // Set user as not verified initially
-            verification_token: verificationToken // Save the verification token
+            is_verified: false,
+            verification_token: verificationToken
         });
 
-        // Kirim email verifikasi
         const verificationLink = `http://localhost:3002/verify-email?token=${verificationToken}`;
         const mailOptions = {
-            from: process.env.GMAIL_USER,
+            from: process.env.EMAIL_USER,
             to: email,
             subject: 'Email Verification',
             html: `<p>Hi ${name},</p><p>Please verify your email by clicking on the following link: <a href="${verificationLink}">${verificationLink}</a></p>`
@@ -83,16 +77,10 @@ const verifyEmail = async (req, res) => {
             return res.status(400).send({ message: "Token verifikasi tidak valid." });
         }
 
-        // Perbarui status verifikasi email pengguna menjadi true
         user.is_verified = true;
-
-        // Hapus token verifikasi karena sudah tidak diperlukan lagi
         user.verification_token = null;
-
-        // Simpan perubahan di database
         await user.save();
 
-        // Redirect ke halaman verifikasi berhasil
         return res.redirect('http://localhost:3000/verification-success');
 
     } catch (error) {
@@ -102,6 +90,7 @@ const verifyEmail = async (req, res) => {
         });
     }
 };
+
 
 
 const getUsers = async (req, res) => {

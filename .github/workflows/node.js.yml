@@ -46,6 +46,25 @@ jobs:
     - name: Install nodejs packages
       run: npm install --silent
 
+    - name: Debug environment variables
+      run: |
+        echo "POSTGRES_USER: $POSTGRES_USER"
+        echo "POSTGRES_HOST: $POSTGRES_HOST"
+        echo "POSTGRES_DB: $POSTGRES_DB"
+      env:
+        POSTGRES_USER: ${{ vars.POSTGRES_USER }}
+        POSTGRES_HOST: ${{ vars.POSTGRES_HOST }}
+        POSTGRES_DB: ${{ vars.POSTGRES_DB }}
+
+    - name: Wait for PostgreSQL
+      run: |
+        until pg_isready -h ${{ vars.POSTGRES_HOST }}; do
+          echo "Waiting for PostgreSQL to be ready..."
+          sleep 2
+        done
+      env:
+        POSTGRES_HOST: ${{ vars.POSTGRES_HOST }}
+
     - name: Run unit testing
       run: npm run test
 
@@ -56,7 +75,7 @@ jobs:
       env:
         NODE_ENV: test
         POSTGRES_USER: ${{ vars.POSTGRES_USER }}
-        POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+        POSTGRES_PASSWORD: "${{ secrets.POSTGRES_PASSWORD }}"
         POSTGRES_HOST: ${{ vars.POSTGRES_HOST }}
         POSTGRES_DB: ${{ vars.POSTGRES_DB }}
 
@@ -64,10 +83,11 @@ jobs:
       run: npm run test
       env:
         POSTGRES_USER: ${{ vars.POSTGRES_USER }}
-        POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+        POSTGRES_PASSWORD: "${{ secrets.POSTGRES_PASSWORD }}"
         POSTGRES_HOST: ${{ vars.POSTGRES_HOST }}
         POSTGRES_DB: ${{ vars.POSTGRES_DB }}
-  
+
+
   # deploy-vercel:
   #   runs-on: ubuntu-latest
   #   needs: build-and-test

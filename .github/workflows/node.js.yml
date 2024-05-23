@@ -2,9 +2,9 @@
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
 
 name: Node.js CI
-env:
-  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+# env:
+  # VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  # VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
 on:
   push:
@@ -24,7 +24,7 @@ jobs:
       postgres:
         image: postgres:16
         env:
-          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_PASSWORD: postgresql123
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -46,24 +46,14 @@ jobs:
     - name: Install nodejs packages
       run: npm install --silent
 
-    - name: Debug environment variables
-      run: |
-        echo "POSTGRES_USER: $POSTGRES_USER"
-        echo "POSTGRES_HOST: $POSTGRES_HOST"
-        echo "POSTGRES_DB: $POSTGRES_DB"
-      env:
-        POSTGRES_USER: ${{ vars.POSTGRES_USER }}
-        POSTGRES_HOST: ${{ vars.POSTGRES_HOST }}
-        POSTGRES_DB: ${{ vars.POSTGRES_DB }}
-
     - name: Wait for PostgreSQL
       run: |
-        until pg_isready -h ${{ vars.POSTGRES_HOST }}; do
+        until pg_isready -h localhost; do
           echo "Waiting for PostgreSQL to be ready..."
           sleep 2
         done
       env:
-        POSTGRES_HOST: ${{ vars.POSTGRES_HOST }}
+        POSTGRES_HOST: localhost
 
     - name: Run unit testing
       run: npm run test
@@ -74,18 +64,20 @@ jobs:
         npx sequelize db:migrate
       env:
         NODE_ENV: test
-        POSTGRES_USER: ${{ vars.POSTGRES_USER }}
-        POSTGRES_PASSWORD: "${{ secrets.POSTGRES_PASSWORD }}"
-        POSTGRES_HOST: ${{ vars.POSTGRES_HOST }}
-        POSTGRES_DB: ${{ vars.POSTGRES_DB }}
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: postgresql123
+        POSTGRES_HOST: localhost
+        POSTGRES_DB: bingle-test
 
     - name: Run integration test
       run: npm run test
       env:
-        POSTGRES_USER: ${{ vars.POSTGRES_USER }}
-        POSTGRES_PASSWORD: "${{ secrets.POSTGRES_PASSWORD }}"
-        POSTGRES_HOST: ${{ vars.POSTGRES_HOST }}
-        POSTGRES_DB: ${{ vars.POSTGRES_DB }}
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: postgresql123
+        POSTGRES_HOST: localhost
+        POSTGRES_DB: bingle-test
+        CLOUDINARY_URL: cloudinary://459774717535937:InZOCaM7gVer0t2lw2LaD51Jow4@dfmqx8bcj
+        JWT_SECRET_KEY: secret99
 
 
   # deploy-vercel:

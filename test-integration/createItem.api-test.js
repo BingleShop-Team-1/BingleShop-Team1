@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken')
 const httpRequest = require('supertest')
 const { describe, it, expect, beforeAll, afterAll } = require('@jest/globals')
 const { sequelize, User, Item } = require('../models')
-const path = require('path')
+// const path = require('path')
 // const cloudinary = require('cloudinary').v2
 
 // jest.mock('cloudinary')
@@ -36,7 +36,7 @@ describe('Create Item Test', () => {
             .field('description', 'Test Description')
             .field('stock', 10)
             .field('price', 99.99)
-            .attach('image', path.resolve(__dirname, '../test-image.png'))
+            // .attach('image', path.resolve(__dirname, '../test-image.png'))
 
         expect(res.status).toBe(401)
     })

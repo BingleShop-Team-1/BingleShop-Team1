@@ -1,18 +1,7 @@
-const { User } = require('../models');
-const bcrypt = require('bcrypt');
+const { User } = require('../models')
+const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken');
-const nodemailer = require('nodemailer');
-const secretKey = process.env.JWT_SECRET_KEY;
-
-// Konfigurasi transporter Nodemailer
-const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: process.env.EMAIL_USER, // Perbarui dari GMAIL_USER ke EMAIL_USER
-        pass: process.env.EMAIL_PASS // Perbarui dari GMAIL_PASS ke EMAIL_PASS
-    }
-});
-
+const secretKey =  process.env.JWT_SECRET_KEY;
 
 const userRegister = async (req, res) => {
     const { name, password, email, is_admin, address } = req.body;
@@ -24,7 +13,7 @@ const userRegister = async (req, res) => {
     }
 
     try {
-        // Cari apakah Email sudah ada di database
+        // Cari apakah Username atau Email sudah ada di database
         const existingEmail = await User.findOne({ where: { email } });
         if (existingEmail) {
             return res.status(400).send({
@@ -35,35 +24,18 @@ const userRegister = async (req, res) => {
         // Enkripsi Password
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Buat token verifikasi
-        const verificationToken = jwt.sign({ email }, secretKey, { expiresIn: '1h' });
-
         // Buat instance baru dari model User
         const user = await User.create({
             name,
             email,
             is_admin,
             address,
-            password: hashedPassword,
-            is_verified: false,  // Set user as not verified initially
-            verification_token: verificationToken // Save the verification token
+            password: hashedPassword
         });
-
-        // Kirim email verifikasi
-        const verificationLink = `http://localhost:3002/verify-email?token=${verificationToken}`;
-        const mailOptions = {
-            from: process.env.GMAIL_USER,
-            to: email,
-            subject: 'Email Verification',
-            html: `<p>Hi ${name},</p><p>Please verify your email by clicking on the following link: <a href="${verificationLink}">${verificationLink}</a></p>`
-        };
-
-        await transporter.sendMail(mailOptions);
 
         return res.status(201).send({
-            message: "Pengguna berhasil didaftarkan. Silakan verifikasi email Anda."
+            message: "Pengguna berhasil didaftarkan"
         });
-
     } catch (error) {
         console.error(error);
         return res.status(500).send({
@@ -71,38 +43,6 @@ const userRegister = async (req, res) => {
         });
     }
 };
-
-const verifyEmail = async (req, res) => {
-    const { token } = req.query;
-
-    try {
-        const payload = jwt.verify(token, secretKey);
-        const user = await User.findOne({ where: { email: payload.email, verification_token: token } });
-
-        if (!user) {
-            return res.status(400).send({ message: "Token verifikasi tidak valid." });
-        }
-
-        // Perbarui status verifikasi email pengguna menjadi true
-        user.is_verified = true;
-
-        // Hapus token verifikasi karena sudah tidak diperlukan lagi
-        user.verification_token = null;
-
-        // Simpan perubahan di database
-        await user.save();
-
-        // Redirect ke halaman verifikasi berhasil
-        return res.redirect('http://localhost:3000/verification-success');
-
-    } catch (error) {
-        console.error(error);
-        return res.status(500).send({
-            message: "Terjadi kesalahan saat verifikasi email."
-        });
-    }
-};
-
 
 const getUsers = async (req, res) => {
     try {
@@ -131,28 +71,21 @@ const userLogin = async (req, res) => {
             message: "Email tidak ditemukan"
         });
     }
-    // Jika Email belum diverifikasi
-    else if (!user.is_verified) {
-        return res.status(401).send({
-            message: "Email belum diverifikasi. Silakan cek email Anda."
-        });
-    }
     // Jika Email dan Password valid, dan Email ditemukan
     else {
         try {
-            const passwordMatch = await bcrypt.compare(password, user.password);
+            const passwordMatch = await bcrypt.compare(password, user.password)
             // Login Berhasil
             if (passwordMatch) {
                 const token = jwt.sign(
-                    { id: user.id, name: user.name, email: user.email, is_admin: user.is_admin },
-                    secretKey,
-                    { expiresIn: '1h' }
-                );
+                    { id: user.id, name: user.name, email: user.email, is_admin: user.is_admin }, 
+                    secretKey, 
+                    { expiresIn: '1h' })
                 return res.status(200).json({
                     message: "Login berhasil",
                     token
                 });
-                // Jika Password salah
+                //Jika Password salah
             } else {
                 return res.status(401).send({
                     message: "Kombinasi Email dan Password salah!"
@@ -162,9 +95,9 @@ const userLogin = async (req, res) => {
             return res.status(500).send({
                 message: "Terjadi kesalahan"
             });
-        }
-    }
-};
+        };
+    };
+}
 
 const userUpdate = async (req, res) => {
     const id = req.params.id;
@@ -205,12 +138,12 @@ const userUpdate = async (req, res) => {
     user.address = address || user.address;
     user.is_admin = isAdmin || user.is_admin;
     if (hashedNewPassword) {
-        user.password = hashedNewPassword;
+        user.password = hashedNewPassword
     }
     // Simpan perubahan user ke database
     await user.save();
-    return res.status(204).send();
-};
+    return res.status(204).send()
+}
 
 const userDelete = async (req, res) => {
     const id = req.params.id;
@@ -240,10 +173,10 @@ const userDelete = async (req, res) => {
         console.error("Error saat menghapus user:", error);
         return res.sendStatus(500);
     }
-};
+}
 
 const whoAmI = (req, res) => {
-    if (!req.user) {
+   if (!req.user) {
         return res.status(401).send({ message: "Unauthorized - No user data found in token." });
     }
 
@@ -258,6 +191,5 @@ module.exports = {
     userLogin,
     userUpdate,
     userDelete,
-    verifyEmail,
     whoAmI
-};
+}

@@ -8,8 +8,8 @@ const secretKey = process.env.JWT_SECRET_KEY;
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: process.env.EMAIL_USER, // Perbarui dari GMAIL_USER ke EMAIL_USER
-        pass: process.env.EMAIL_PASS // Perbarui dari GMAIL_PASS ke EMAIL_PASS
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS 
     }
 });
 

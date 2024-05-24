@@ -24,7 +24,7 @@ jobs:
       postgres:
         image: postgres:16
         env:
-          POSTGRES_PASSWORD: postgresql123
+          DB_TEST_PASSWORD: postgresql123
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -53,7 +53,7 @@ jobs:
           sleep 2
         done
       env:
-        POSTGRES_HOST: localhost
+        DB_TEST_HOST: localhost
 
     - name: Run unit testing
       run: npm run test
@@ -64,18 +64,18 @@ jobs:
         npx sequelize db:migrate
       env:
         NODE_ENV: test
-        POSTGRES_USER: postgres
-        POSTGRES_PASSWORD: postgresql123
-        POSTGRES_HOST: localhost
-        POSTGRES_DB: bingle-test
+        DB_TEST_USERNAME: postgres
+        DB_TEST_PASSWORD: postgresql123
+        DB_TEST_HOST: localhost
+        DB_TEST_NAME: bingle-test
 
     - name: Run integration test
       run: npm run test
       env:
-        POSTGRES_USER: postgres
-        POSTGRES_PASSWORD: postgresql123
-        POSTGRES_HOST: localhost
-        POSTGRES_DB: bingle-test
+        DB_TEST_USERNAME: postgres
+        DB_TEST_PASSWORD: postgresql123
+        DB_TEST_HOST: localhost
+        DB_TEST_NAME: bingle-test
         CLOUDINARY_URL: cloudinary://459774717535937:InZOCaM7gVer0t2lw2LaD51Jow4@dfmqx8bcj
         JWT_SECRET_KEY: secret99
 

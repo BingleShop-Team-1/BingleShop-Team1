@@ -24,7 +24,7 @@ jobs:
       postgres:
         image: postgres:16
         env:
-          DB_TEST_PASSWORD: postgresql123
+          POSTGRES_PASSWORD: postgresql123
         options: >-
           --health-cmd pg_isready
           --health-interval 10s

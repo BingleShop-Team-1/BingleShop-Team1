@@ -2,25 +2,15 @@ require("dotenv").config()
 const app = require('../app')
 const jwt = require('jsonwebtoken')
 const httpRequest = require('supertest')
+const { faker } = require('@faker-js/faker')
 const { describe, it, expect, beforeAll, afterAll } = require('@jest/globals')
 const { sequelize, User, Item } = require('../models')
-// const path = require('path')
-// const cloudinary = require('cloudinary').v2
-
-// jest.mock('cloudinary')
-// cloudinary.uploader.upload = jest.fn().mockImplementation((file) => {
-//     return Promise.resolve({
-//         secure_url: 'http://mockedurl.com/image.png'
-//     })
-// })
+const path = require('path')
+const fs = require('fs').promises;
 
 describe('Update Item Test', () => {
     beforeAll(async () => {
         await sequelize.sync({ force: true })
-    })
-
-    afterAll(async () => {
-        await sequelize.close()
     })
 
     const userLogin = async (isAdmin) => {
@@ -29,52 +19,84 @@ describe('Update Item Test', () => {
         return token
     }
 
+    const getImageBuffer = async () => {
+        const imagePath = path.resolve(__dirname, '../uploads/dummy.jpg');
+        const imageBuffer = await fs.readFile(imagePath);
+        return imageBuffer
+    }
+
+    const createItem = async () => {
+        const item = await Item.create({
+            name: faker.commerce.productName(),
+            description: faker.commerce.productDescription(),
+            price: parseFloat(faker.commerce.price()),
+            stock: faker.number.int({ min: 10, max: 100 }),
+            image: faker.image.avatar()
+        });
+        return item
+    }
+
     it('should return unauthorized if not logged in', async () => {
         const res = await httpRequest(app)
-            .put('/items')
+            .put('/items/1')
             .field('name', 'Tes')
             .field('description', 'Test Description')
             .field('stock', 10)
-            .field('price', 99.99)
-            // .attach('image', path.resolve(__dirname, '../test-image.png'))
+            .field('price', 999)
 
         expect(res.status).toBe(401)
     })
 
     it('should return forbidden if not admin', async () => {
         const token = await userLogin(false)
+        const item = await createItem()
 
         const res = await httpRequest(app)
-            .put('/items')
+            .put(`/items/${item.id}`)
             .set('Authorization', `Bearer ${token}`)
             .field('name', 'Test Item')
             .field('description', 'Test Description')
             .field('stock', 10)
-            .field('price', 99.99)
-            // .attach('image', path.resolve(__dirname, '../test-image.png'))
+            .field('price', 9999)
 
-        expect(res.status).toBe(404)
+        expect(res.status).toBe(403)
+    })
+
+    it('should not found item id', async () => {
+        const token = await userLogin(true)
+
+        const res = await httpRequest(app)
+            .put('/items/99999')
+            .set('Authorization', `Bearer ${token}`)
+            .field('name', 'Test Item')
+            .field('description', 'Test Description')
+            .field('stock', 10)
+            .field('price', 1000)
+
+        expect(res.status).toBe(400)
     })
 
     it('should update item if admin', async () => {
-        // const token = await userLogin(true)
+        const token = await userLogin(true)
+        const imageBuffer = await getImageBuffer()
+        const item = await createItem()
 
-        // const res = await httpRequest(app)
-        //     .post('/items')
-        //     .set('Authorization', `Bearer ${token}`)
-        //     .field('name', 'Test Item')
-        //     .field('description', 'Test Description')
-        //     .field('stock', 10)
-        //     .field('price', 99.99)
-        //     .attach('image', path.resolve(__dirname, '../test-image.png'))
+        const res = await httpRequest(app)
+            .put(`/items/${item.id}`)
+            .set('Authorization', `Bearer ${token}`)
+            .field('name', 'Test Item')
+            .field('description', 'Test Description')
+            .field('stock', 10)
+            .field('price', 1000)
+            .attach('image', imageBuffer, 'dummy.jpg');
 
-        // expect(res.status).toBe(200)
-        // expect(res.body.success).toBe(true)
-        // expect(res.body.data).toHaveProperty('id')
-        // expect(res.body.data.name).toBe('Test Item')
-        // expect(res.body.data.description).toBe('Test Description')
-        // expect(res.body.data.stock).toBe(10)
-        // expect(res.body.data.price).toBe(99.99)
-        // expect(res.body.data.image).toBe('http://mockedurl.com/image.png')
+        expect(res.status).toBe(200)
+        expect(res.body.success).toBe(true)
+        expect(res.body.data).toHaveProperty('id')
+        expect(res.body.data.name).toBe('Test Item')
+        expect(res.body.data.description).toBe('Test Description')
+        expect(res.body.data.stock).toBe("10")
+        expect(res.body.data.price).toBe("1000")
+        expect(res.body.data.image).toMatch(/^https:\/\/res\.cloudinary\.com\//);
     })
 })

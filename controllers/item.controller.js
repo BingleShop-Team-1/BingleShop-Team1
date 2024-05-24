@@ -33,6 +33,7 @@ module.exports = {
         data: item
       });
     } catch (error) {
+      console.log(error);
       return res.status(500).json({message: error.message});
     }
   },
@@ -43,7 +44,7 @@ module.exports = {
     if (req.file) image_url = await uploadCloud(req.file.path); // unggah gambar baru jika ada
 
     const item = await Item.findByPk(id);
-    if (!item) return res.sendStatus(404);
+    if (!item) return res.sendStatus(400);
     try {
       item.name = name;
       item.description = description;
@@ -51,7 +52,7 @@ module.exports = {
       item.stock = stock;
       item.price = price;
       await item.save();
-      res.status(200).json({message: "Item updated!"});
+      res.status(200).json({success: true, message: "Item updated!", data: item});
     } catch (error) {
       return res.status(500).json({message: error.message});
     }
@@ -68,7 +69,7 @@ module.exports = {
         });
         return res.status(200).json({message: "Item deleted"});
       }
-      return res.sendStatus(404);
+      return res.sendStatus(400);
     } catch (error) {
       return res.status(500).json({message: error.message});
     }

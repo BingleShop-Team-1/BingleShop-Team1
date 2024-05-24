@@ -4,8 +4,6 @@ const isAuthenticated = require('../middlewares/isAuthenticated');
 
 router.post("/register", controller.userRegister);
 
-router.get('/verify-email', controller.verifyEmail);
-
 router.get('/', isAuthenticated, controller.getUsers);
 
 router.post("/login", controller.userLogin);

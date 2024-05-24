@@ -1,5 +1,5 @@
-const { User } = require('../models');
-const bcrypt = require('bcrypt');
+const { User } = require('../models')
+const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 const secretKey = process.env.JWT_SECRET_KEY;
@@ -55,9 +55,8 @@ const userRegister = async (req, res) => {
         await transporter.sendMail(mailOptions);
 
         return res.status(201).send({
-            message: "Pengguna berhasil didaftarkan. Silakan verifikasi email Anda."
+            message: "Pengguna berhasil didaftarkan"
         });
-
     } catch (error) {
         console.error(error);
         return res.status(500).send({
@@ -120,28 +119,21 @@ const userLogin = async (req, res) => {
             message: "Email tidak ditemukan"
         });
     }
-    // Jika Email belum diverifikasi
-    else if (!user.is_verified) {
-        return res.status(401).send({
-            message: "Email belum diverifikasi. Silakan cek email Anda."
-        });
-    }
     // Jika Email dan Password valid, dan Email ditemukan
     else {
         try {
-            const passwordMatch = await bcrypt.compare(password, user.password);
+            const passwordMatch = await bcrypt.compare(password, user.password)
             // Login Berhasil
             if (passwordMatch) {
                 const token = jwt.sign(
-                    { id: user.id, name: user.name, email: user.email, is_admin: user.is_admin },
-                    secretKey,
-                    { expiresIn: '1h' }
-                );
+                    { id: user.id, name: user.name, email: user.email, is_admin: user.is_admin }, 
+                    secretKey, 
+                    { expiresIn: '1h' })
                 return res.status(200).json({
                     message: "Login berhasil",
                     token
                 });
-                // Jika Password salah
+                //Jika Password salah
             } else {
                 return res.status(401).send({
                     message: "Kombinasi Email dan Password salah!"
@@ -151,9 +143,9 @@ const userLogin = async (req, res) => {
             return res.status(500).send({
                 message: "Terjadi kesalahan"
             });
-        }
-    }
-};
+        };
+    };
+}
 
 const userUpdate = async (req, res) => {
     const id = req.params.id;
@@ -194,12 +186,12 @@ const userUpdate = async (req, res) => {
     user.address = address || user.address;
     user.is_admin = isAdmin || user.is_admin;
     if (hashedNewPassword) {
-        user.password = hashedNewPassword;
+        user.password = hashedNewPassword
     }
     // Simpan perubahan user ke database
     await user.save();
-    return res.status(204).send();
-};
+    return res.status(204).send()
+}
 
 const userDelete = async (req, res) => {
     const id = req.params.id;
@@ -229,10 +221,10 @@ const userDelete = async (req, res) => {
         console.error("Error saat menghapus user:", error);
         return res.sendStatus(500);
     }
-};
+}
 
 const whoAmI = (req, res) => {
-    if (!req.user) {
+   if (!req.user) {
         return res.status(401).send({ message: "Unauthorized - No user data found in token." });
     }
 
@@ -247,6 +239,6 @@ module.exports = {
     userLogin,
     userUpdate,
     userDelete,
+    whoAmI,
     verifyEmail,
-    whoAmI
-};
+}

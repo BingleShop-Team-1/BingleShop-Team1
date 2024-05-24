@@ -2,12 +2,12 @@
   "name": "http-express",
   "version": "1.0.0",
   "description": "",
-  "main": "server.js",
+  "main": "index.js",
   "scripts": {
     "test": "jest --config=./test-integration/jest.config.js --detectOpenHandles --forceExit",
-    "start": "node server.js",
-    "start-dev": "nodemon server.js",
-    "http": "node server.js"
+    "start": "node index.js",
+    "start-dev": "nodemon index.js",
+    "http": "node index.js"
   },
   "keywords": [],
   "author": "",

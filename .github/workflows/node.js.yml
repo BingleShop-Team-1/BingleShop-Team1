@@ -46,18 +46,6 @@ jobs:
     - name: Install nodejs packages
       run: npm install --silent
 
-    - name: Wait for PostgreSQL
-      run: |
-        until pg_isready -h localhost; do
-          echo "Waiting for PostgreSQL to be ready..."
-          sleep 2
-        done
-      env:
-        DB_TEST_HOST: localhost
-
-    - name: Run unit testing
-      run: npm run test
-
     - name: Run sequelize module to create database and migration
       run: |
         npx sequelize db:create

@@ -24,7 +24,7 @@ jobs:
       postgres:
         image: postgres:16
         env:
-          POSTGRES_PASSWORD: postgresql123
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -52,20 +52,20 @@ jobs:
         npx sequelize db:migrate
       env:
         NODE_ENV: test
-        DB_TEST_USERNAME: postgres
-        DB_TEST_PASSWORD: postgresql123
-        DB_TEST_HOST: localhost
-        DB_TEST_NAME: bingle-test
+        DB_TEST_USERNAME: ${{ vars.POSTGRES_USER }}
+        DB_TEST_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+        DB_TEST_HOST: ${{ vars.POSTGRES_HOST }}
+        DB_TEST_NAME: ${{ vars.POSTGRES_DB }}
 
     - name: Run integration test
       run: npm run test
       env:
-        DB_TEST_USERNAME: postgres
-        DB_TEST_PASSWORD: postgresql123
-        DB_TEST_HOST: localhost
-        DB_TEST_NAME: bingle-test
-        CLOUDINARY_URL: cloudinary://459774717535937:InZOCaM7gVer0t2lw2LaD51Jow4@dfmqx8bcj
-        JWT_SECRET_KEY: secret99
+        DB_TEST_USERNAME: ${{ vars.POSTGRES_USER }}
+        DB_TEST_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+        DB_TEST_HOST: ${{ vars.POSTGRES_HOST }}
+        DB_TEST_NAME: ${{ vars.POSTGRES_DB }}
+        CLOUDINARY_URL: ${{ secrets.CLOUDINARY_URL }}
+        JWT_SECRET_KEY: ${{ secrets.JWT_SECRET }}
 
 
   # deploy-vercel:

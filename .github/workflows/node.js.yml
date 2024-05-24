@@ -102,7 +102,7 @@ jobs:
           ssh -i ${{ secrets.SSH_PRIVATE_KEY }} -p ${{ secrets.SSHPORT }} ${{ secrets.SSHUSER }}@${{ secrets.SSHHOST }} << EOF
             # Ganti user
             su userops
-            echo "userops123" | sudo -S su userops
+            echo "${{ secrets.SSHUSERPASS }}" | sudo -S su userops
 
             # Navigasi ke direktori proyek dan pull dari Git
             cd

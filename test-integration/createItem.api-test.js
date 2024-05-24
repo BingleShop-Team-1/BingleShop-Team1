@@ -32,16 +32,7 @@ describe('Create Item Test', () => {
             .field('description', 'Test Description')
             .field('stock', 10)
             .field('price', 99.99)
-<<<<<<< HEAD
-<<<<<<< HEAD
             .attach('image', imageBuffer, 'dummy.jpg');
-=======
-            .attach('image', path.resolve(__dirname, '../test-image.png'))
->>>>>>> db4af4d574e7a4b42dcf9076b6adace3e7f13854
-=======
-            // .attach('image', path.resolve(__dirname, '../test-image.png'))
->>>>>>> 7c087ded3cd666a5d5950ed684f89d4d1146fc28
-
         expect(res.status).toBe(401);
     })
 

@@ -1,5 +1,5 @@
-module.exports = (req, res, next) => {
-    if (req.user.is_admin) {
+module.exports = (shouldAdmin) => (req, res, next) => {
+    if (req.user.is_admin == shouldAdmin) {
         return next()
     }
     

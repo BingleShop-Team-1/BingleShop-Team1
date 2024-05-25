@@ -117,3 +117,4 @@ jobs:
           SSHHOST: ${{ secrets.SSHHOST }}
           SSHUSER: ${{ secrets.SSHUSER }}
           SSHPORT: ${{ secrets.SSHPORT }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}

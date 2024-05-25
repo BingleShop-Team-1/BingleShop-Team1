@@ -97,9 +97,6 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - name: Check SSH key length
-        run: echo ${{ secrets.SSH_PRIVATE_KEY }} | wc -c
-
       - name: Deploy to GCP
         run: |
           ssh -i ${{ secrets.SSH_PRIVATE_KEY }} -p ${{ secrets.SSHPORT }} ${{ secrets.SSHUSER }}@${{ secrets.SSHHOST }} << EOF
@@ -113,8 +110,8 @@ jobs:
             git pull origin main
 
             # Build dan jalankan Docker
-            docker compose down
-            docker compose up --build -d
+            # docker compose down
+            # docker compose up --build -d
           EOF
         env:
           SSHHOST: ${{ secrets.SSHHOST }}

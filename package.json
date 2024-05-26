@@ -2,12 +2,12 @@
   "name": "http-express",
   "version": "1.0.0",
   "description": "",
-  "main": "server.js",
+  "main": "index.js",
   "scripts": {
     "test": "jest --config=./test-integration/jest.config.js --detectOpenHandles --forceExit",
-    "start": "node server.js",
-    "start-dev": "nodemon server.js",
-    "http": "node server.js"
+    "start": "node index.js",
+    "start-dev": "nodemon index.js",
+    "http": "node index.js"
   },
   "keywords": [],
   "author": "",
@@ -26,9 +26,10 @@
     "express": "^4.19.2",
     "jsonwebtoken": "^9.0.2",
     "multer": "^1.4.5-lts.1",
+    "nodemailer": "^6.9.13",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "pg": "^8.11.3",
-    "sequelize": "^6.37.1"
+    "sequelize": "^6.37.3"
   }
 }

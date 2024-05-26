@@ -72,6 +72,6 @@ describe('Create Item Test', () => {
         expect(res.body.data.description).toBe('Test Description')
         expect(res.body.data.stock).toBe(10)
         expect(res.body.data.price).toBe(1000)
-        expect(res.body.data.image).toMatch(/^https:\/\/res\.cloudinary\.com\//);
+        expect(res.body.data.image).toMatch(/^https:\/\/res\.cloudinary\.img\//);
     });
 })

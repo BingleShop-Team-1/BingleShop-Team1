@@ -6,7 +6,7 @@ const fs = require("fs");
 
 let uploadCloud = async (file) => {}
 
-if (process.env.NODE_ENV === "test") {
+if (process.env.NODE_ENV != "test") {
   cloudinary.config({
     secure: true,
   });
@@ -23,9 +23,9 @@ if (process.env.NODE_ENV === "test") {
   };
 
 } else {
-  uploadCloud = async file => ({
-    secure_url: "https://cloudinary/" + file
-  })
+  uploadCloud = async (file) => {
+    return "https://res.cloudinary.img/" + file
+  }
 }
 
 const localStore = multer.diskStorage({

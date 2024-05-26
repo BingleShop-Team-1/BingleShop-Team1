@@ -24,7 +24,7 @@ jobs:
       postgres:
         image: postgres:16
         env:
-          POSTGRES_PASSWORD: postgresql123
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -46,38 +46,26 @@ jobs:
     - name: Install nodejs packages
       run: npm install --silent
 
-    - name: Wait for PostgreSQL
-      run: |
-        until pg_isready -h localhost; do
-          echo "Waiting for PostgreSQL to be ready..."
-          sleep 2
-        done
-      env:
-        POSTGRES_HOST: localhost
-
-    - name: Run unit testing
-      run: npm run test
-
     - name: Run sequelize module to create database and migration
       run: |
         npx sequelize db:create
         npx sequelize db:migrate
       env:
         NODE_ENV: test
-        POSTGRES_USER: postgres
-        POSTGRES_PASSWORD: postgresql123
-        POSTGRES_HOST: localhost
-        POSTGRES_DB: bingle-test
+        DB_TEST_USERNAME: ${{ vars.POSTGRES_USER }}
+        DB_TEST_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+        DB_TEST_HOST: ${{ vars.POSTGRES_HOST }}
+        DB_TEST_NAME: ${{ vars.POSTGRES_DB }}
 
     - name: Run integration test
       run: npm run test
       env:
-        POSTGRES_USER: postgres
-        POSTGRES_PASSWORD: postgresql123
-        POSTGRES_HOST: localhost
-        POSTGRES_DB: bingle-test
-        CLOUDINARY_URL: cloudinary://459774717535937:InZOCaM7gVer0t2lw2LaD51Jow4@dfmqx8bcj
-        JWT_SECRET_KEY: secret99
+        DB_TEST_USERNAME: ${{ vars.POSTGRES_USER }}
+        DB_TEST_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+        DB_TEST_HOST: ${{ vars.POSTGRES_HOST }}
+        DB_TEST_NAME: ${{ vars.POSTGRES_DB }}
+        CLOUDINARY_URL: ${{ secrets.CLOUDINARY_URL }}
+        JWT_SECRET_KEY: ${{ secrets.JWT_SECRET }}
 
 
   # deploy-vercel:
@@ -95,26 +83,39 @@ jobs:
   #       run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
 
   # this is the deployment sample for VPS or compute engine instance
-  # deploy:
-  #   runs-on: ubuntu-latest
-  #   needs: build
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - name: Upload to VM
-  #       uses: appleboy/scp-action@v0.1.4
-  #       with:
-  #         host: ${{ secrets.SSHHOST }}
-  #         username: ${{ secrets.SSHUSER }}
-  #         key: ${{ secrets.SSHKEY }}
-  #         port: ${{ secrets.SSHPORT }}
-  #         source: '.'
-  #         target: ./latihan-cicd/
-  #     - name: restart pm2 services
-  #       uses: appleboy/ssh-action@v1.0.0
-  #       with:
-  #         host: ${{ secrets.SSHHOST }}
-  #         username: ${{ secrets.SSHUSER }}
-  #         key: ${{ secrets.SSHKEY }}
-  #         port: ${{ secrets.SSHPORT }}
-  #         script: |
-  #           pm2 restart all
+  deploy-gcp:
+    runs-on: ubuntu-latest
+
+    needs: build-and-test
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Deploy to GCP
+        run: |
+          ssh -i ${{ secrets.SSH_PRIVATE_KEY }} -p ${{ secrets.SSHPORT }} ${{ secrets.SSHUSER }}@${{ secrets.SSHHOST }} << EOF
+            # Ganti user
+            su userops
+            echo "${{ secrets.SSHUSERPASS }}" | sudo -S su userops
+
+            # Navigasi ke direktori proyek dan pull dari Git
+            cd
+            cd ~/BingleShop-Team1
+            git pull origin main
+
+            # Build dan jalankan Docker
+            # docker compose down
+            # docker compose up --build -d
+          EOF
+        env:
+          SSHHOST: ${{ secrets.SSHHOST }}
+          SSHUSER: ${{ secrets.SSHUSER }}
+          SSHPORT: ${{ secrets.SSHPORT }}
+          SSHUSERPASS: ${{ secrets.SSHUSERPASS }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}

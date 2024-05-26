@@ -160,6 +160,8 @@ const userLogin = async (req, res) => {
     }
 };
 
+
+
 const userUpdate = async (req, res) => {
     const id = req.params.id;
     const { name, address, email, oldPassword, newPassword, isAdmin } = req.body;
@@ -206,6 +208,8 @@ const userUpdate = async (req, res) => {
     return res.status(204).send();
 };
 
+
+
 const userDelete = async (req, res) => {
     const id = req.params.id;
     const { password } = req.body;
@@ -235,6 +239,8 @@ const userDelete = async (req, res) => {
         return res.sendStatus(500);
     }
 };
+
+
 
 const whoAmI = (req, res) => {
     if (!req.user) {

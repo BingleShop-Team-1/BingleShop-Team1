@@ -67,12 +67,12 @@ jobs:
         CLOUDINARY_URL: ${{ secrets.CLOUDINARY_URL }}
         JWT_SECRET_KEY: ${{ secrets.JWT_SECRET }}
 
-    - name: Store the artifact
-      uses: actions/upload-artifact@v3.1.3
-      with:
-        name: binar-artifact
-        path: .
-        retention-days: 1
+    # - name: Store the artifact
+    #   uses: actions/upload-artifact@v3.1.3
+    #   with:
+    #     name: binar-artifact
+    #     path: .
+    #     retention-days: 1
 
 
   deploy-vercel:
@@ -95,10 +95,13 @@ jobs:
     runs-on: ubuntu-latest
     needs: build-and-test
     steps:
-      - name: Use current build artifact
-        uses: actions/download-artifact@v3.1.3
-        with:
-          name: binar-artifact
+      # - name: Use current build artifact
+      #   uses: actions/download-artifact@v3.1.3
+      #   with:
+      #     name: binar-artifact
+
+      - name: Checkout current branch
+        uses: actions/checkout@v2
 
       - name: Prepare .env file
         run: |
@@ -134,4 +137,5 @@ jobs:
           key: ${{ secrets.SSHKEY }}
           port: ${{ secrets.SSHPORT }}
           script: |
-            pm2 restart all
+            npm install --silent
+            pm2 restart binar-backend

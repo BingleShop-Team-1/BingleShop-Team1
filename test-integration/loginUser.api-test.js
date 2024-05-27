@@ -17,6 +17,7 @@ describe('POST /users/login', () => {
             email: 'testuser@example.com',
             password: hashedPassword,
             is_admin: false,
+            is_verified: true,
             address: '123 Test St.'
         });
     });

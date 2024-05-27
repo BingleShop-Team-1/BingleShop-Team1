@@ -67,6 +67,12 @@ jobs:
         CLOUDINARY_URL: ${{ secrets.CLOUDINARY_URL }}
         JWT_SECRET_KEY: ${{ secrets.JWT_SECRET }}
 
+    - name: Store the artifact
+      uses: actions/upload-artifact@v3.1.3
+      with:
+        name: binar-artifact
+        retention-days: 1
+
 
   deploy-vercel:
     runs-on: ubuntu-latest
@@ -84,39 +90,47 @@ jobs:
 
 
   # this is the deployment sample for VPS or compute engine instance
-  # deploy-gcp:
-  #   runs-on: ubuntu-latest
+  deploy-to-vps:
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    steps:
+      - name: Use current build artifact
+        uses: actions/download-artifact@v3.1.3
+        with:
+          name: binar-artifact
 
-  #   needs: build-and-test
+      - name: Prepare .env file
+        run: |
+          touch .env #bikin file .env ke current direcotyr
+          echo "DB_PROD_USERNAME=${{ secrets.DB_PROD_USERNAME }}" >> .env #menuliskan env beserta isinya, lalu di append ke file .env
+          echo "DB_PROD_PASSWORD=${{ secrets.DB_PROD_PASSWORD }}" >> .env
+          echo "DB_PROD_NAME=${{ secrets.DB_PROD_NAME }}" >> .env
+          echo "DB_PROD_HOST=${{ secrets.DB_PROD_HOST }}" >> .env
+          echo "DB_PROD_PORT=${{ secrets.DB_PROD_PORT }}" >> .env
+          echo "DB_PROD_DIALECT=${{ secrets.DB_PROD_DIALECT }}" >> .env
+          echo "DB_PROD_DIALECT=${{ secrets.DB_PROD_DIALECT }}" >> .env
+          echo "JWT_SECRET_KEY=${{ secrets.JWT_SECRET }}" >> .env
+          echo "CLOUDINARY_URL=${{ secrets.CLOUDINARY_URL }}" >> .env
+          echo "EMAIL_USER=${{ secrets.EMAIL_USER }}" >> .env
+          echo "EMAIL_PASS=${{ secrets.EMAIL_PASS }}" >> .env
+          echo "BASE_URL==${{ secrets.BASE_URL }}" >> .env
 
-  #   steps:
-  #     - name: Checkout repository
-  #       uses: actions/checkout@v2
+      - name: Upload to VM
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.SSHHOST }}
+          username: ${{ secrets.SSHUSER }}
+          key: ${{ secrets.SSHKEY }}
+          port: ${{ secrets.SSHPORT }}
+          source: '.'
+          target: ./BingleShop-Team1/
 
-  #     - name: Set up SSH
-  #       uses: webfactory/ssh-agent@v0.5.3
-  #       with:
-  #         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
-  #     - name: Deploy to GCP
-  #       run: |
-  #         ssh -i ${{ secrets.SSH_PRIVATE_KEY }} -p ${{ secrets.SSHPORT }} ${{ secrets.SSHUSER }}@${{ secrets.SSHHOST }} << EOF
-  #           # Ganti user
-  #           su userops
-  #           echo "${{ secrets.SSHUSERPASS }}" | sudo -S su userops
-
-  #           # Navigasi ke direktori proyek dan pull dari Git
-  #           cd
-  #           cd ~/BingleShop-Team1
-  #           git pull origin main
-
-  #           # Build dan jalankan Docker
-  #           # docker compose down
-  #           # docker compose up --build -d
-  #         EOF
-  #       env:
-  #         SSHHOST: ${{ secrets.SSHHOST }}
-  #         SSHUSER: ${{ secrets.SSHUSER }}
-  #         SSHPORT: ${{ secrets.SSHPORT }}
-  #         SSHUSERPASS: ${{ secrets.SSHUSERPASS }}
-  #         SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      - name: restart pm2 services
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.SSHHOST }}
+          username: ${{ secrets.SSHUSER }}
+          key: ${{ secrets.SSHKEY }}
+          port: ${{ secrets.SSHPORT }}
+          script: |
+            pm2 restart all

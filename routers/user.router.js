@@ -4,15 +4,10 @@ const { isAdmin } = require('../middlewares');
 const isAuthenticated = require('../middlewares/isAuthenticated');
 
 router.post("/register", controller.userRegister);
-
-router.get('/', isAuthenticated, isAdmin(true), controller.getUsers);
-
+router.get('/', isAuthenticated, isAdmin(true), controller.getUsers); 
 router.post("/login", controller.userLogin);
-
 router.put('/:id', isAuthenticated, controller.userUpdate);
-
 router.delete('/:id', isAuthenticated, isAdmin(true), controller.userDelete);
-
 router.get('/whoami', isAuthenticated, controller.whoAmI);
 
 module.exports = router;

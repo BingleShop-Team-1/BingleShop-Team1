@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 const secretKey = process.env.JWT_SECRET_KEY;
+const { body, validationResult } = require('express-validator');
 
 // Konfigurasi transporter Nodemailer
 const transporter = nodemailer.createTransport({
@@ -16,6 +17,15 @@ const transporter = nodemailer.createTransport({
 
 
 const userRegister = async (req, res) => {
+    await body('email').isEmail().withMessage('Email tidak valid').run(req);
+    await body('password').isLength({ min: 5 }).withMessage('Password minimal 5 karakter').run(req);
+    await body('name').notEmpty().withMessage('Nama lengkap diperlukan').run(req);
+
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
     const { name, password, email, is_admin, address } = req.body;
 
     // Validasi input

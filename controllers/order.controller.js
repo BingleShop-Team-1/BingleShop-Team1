@@ -57,9 +57,11 @@ const getOrders = async (req, res) => {
 }
 
 const createOrder = async (req, res) => {
+    const transaction = await sequelize.transaction();
     try {
         const { items } = req.body;
         if (!items) {
+            await transaction.rollback();
             return res.status(400).send(
                 `Please fill items with id and quantity. Example:
                 {
@@ -79,7 +81,8 @@ const createOrder = async (req, res) => {
             attributes: ['id', 'price']
         });
 
-        if (itemDB.length != items.length) {
+        if (itemDB.length !== items.length) {
+            await transaction.rollback();
             return res.status(404).json({
                 error: 'cannot find item(s) requested'
             });
@@ -94,6 +97,7 @@ const createOrder = async (req, res) => {
         const totalOrderQuantity = mergedItem.reduce((a, b) => a + b.quantity, 0);
 
         if (isNaN(totalOrderPrice) || isNaN(totalOrderQuantity)) {
+            await transaction.rollback();
             return res.status(400).send(
                 `Please fill items with id and quantity. Example:
                 {
@@ -110,7 +114,7 @@ const createOrder = async (req, res) => {
             total_quantity: totalOrderQuantity,
             total_price: Number(totalOrderPrice),
             status: "pending"
-        });
+        }, { transaction });
 
         const orderDetails = mergedItem.map((item) => {
             return {
@@ -120,18 +124,17 @@ const createOrder = async (req, res) => {
             };
         });
 
-        const orderItems = await OrderItem.bulkCreate(orderDetails);
+        await OrderItem.bulkCreate(orderDetails, { transaction });
 
-        if (orderItems) {
-            return res.status(201).json(orderItems);
-        }
+        await transaction.commit();
 
-        return res.sendStatus(500);
+        return res.status(201).json({ success: true, data: orderDetails });
     } catch (error) {
+        await transaction.rollback();
         console.error('Error creating order:', error);
         return res.status(500).json({ success: false, message: "Internal Server Error" });
     }
-}
+};
 
 
 // const createOrder =  async (req, res) => {

@@ -26,7 +26,6 @@ describe('Order test', () => {
         expect(res.body.success).toEqual(true)
         expect(res.body).toHaveProperty('data')
         expect(Array.isArray(res.body.data)).toBe(true);
-        // expect(res.body.data.length).toBeGreaterThan(0);
     })
 
     it('PATCH /orders - failure - wrong status', async () => {
@@ -92,7 +91,6 @@ describe('Order test', () => {
 
         payload = {
             items: [{"id": 1, "name": "item1"}, {"id": 2, "name": "item2"} ], 
-            order: [{"id": 1, "quantity": 10}, {"id": 2, "quantity": 5}] 
         }
         const res = await httpRequest(app)
             .post('/orders')

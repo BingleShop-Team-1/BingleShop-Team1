@@ -1,6 +1,6 @@
 const express = require("express");
 const router = require("./routers");
-const verifyToken = require('./middlewares/verifyToken');
+const { verifyToken } = require('./middlewares/');
 require('dotenv').config();
 
 const app = express();

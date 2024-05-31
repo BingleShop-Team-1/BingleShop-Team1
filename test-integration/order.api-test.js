@@ -121,28 +121,28 @@ describe('Order test', () => {
     })
 
     it('POST /orders - success - successfully created order', async () => {
-        token = await userLogin(false)
-        mockItem = await Item.bulkCreate([{
-            id: 3,
-            name: "sabun",
-            price: 1000
-        },
-        {
-            id: 4,
-            name: "shampoo",
-            price: 2000
-        }]
-    )
-        payload = {
-            items: [{"id": 1, "name": "item1"}, {"id": 2, "name": "item2"} ], 
-            order: [{"id": 1, "quantity": 10}, {"id": 2, "quantity": 5}] 
-        }
+        const token = await userLogin(false);
+
+        const payload = {
+            items: [
+                { id: 1, quantity: 1 },
+                { id: 2, quantity: 1 }
+            ]
+        };
         const res = await httpRequest(app)
             .post('/orders')
             .set('Authorization', `Bearer ${token}`)
-            .send(payload)
-        expect(res.status).toBe(201)
-    })
+            .send(payload);
+
+        expect(res.status).toBe(201);
+        expect(res.body.success).toBe(true);
+        expect(res.body.data).toBeDefined();
+        expect(res.body.data.length).toBe(2);
+        res.body.data.forEach(orderItem => {
+            expect(orderItem.quantity).toBe(1);
+            expect([1, 2]).toContain(orderItem.item_id);
+        });
+    });
 })
 
 async function userLogin(isAdmin) {

@@ -59,16 +59,10 @@ const createOrder = async (req, res) => {
     const transaction = await sequelize.transaction();
     try {
         const { items } = req.body;
-        if (!items) {
+        if (!items || items.length === 0 || items.some(item => !item.id || item.quantity <= 0)) {
             await transaction.rollback();
             return res.status(400).send(
-                `Please fill items with id and quantity. Example:
-                {
-                    "items": [
-                        {"id": 1, "quantity": 10}, 
-                        {"id": 2, "quantity": 15}
-                    ]
-                }`
+                `Please fill items with id and quantity greater than 0. Example: { "items": [ {"id": 1, "quantity": 10}, {"id": 2, "quantity": 15} ] }`
             );
         }
 
@@ -97,14 +91,8 @@ const createOrder = async (req, res) => {
 
         if (isNaN(totalOrderPrice) || isNaN(totalOrderQuantity)) {
             await transaction.rollback();
-            return res.status(400).send(
-                `Please fill items with id and quantity. Example:
-                {
-                    "items": [
-                        {"id": 1, "quantity": 10}, 
-                        {"id": 2, "quantity": 15}
-                    ]
-                }`
+            return res.status(400).json(
+                `Please fill items with id and quantity. Example: { "items": [ { "id": 1, "quantity": 10 }, { "id": 2, "quantity": 15 } ] }`
             );
         }
 

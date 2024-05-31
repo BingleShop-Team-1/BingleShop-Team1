@@ -4,6 +4,10 @@ const { User, sequelize } = require('../models');
 const bcrypt = require('bcrypt');
 const { describe, it, beforeAll, afterAll, beforeEach, expect } = require('@jest/globals');
 
+if (process.env.NODE_ENV === 'test') {
+    console.error = jest.fn();
+}
+
 describe('POST /users/login', () => {
     beforeAll(async () => {
         await sequelize.sync({ force: true });
@@ -43,7 +47,8 @@ describe('POST /users/login', () => {
             .send({ email: 'testuser@example.com' });
 
         expect(response.status).toBe(400);
-        expect(response.body).toHaveProperty('message', 'Silakan isikan Email & Password');
+        expect(response.body).toHaveProperty('success', false);
+        expect(response.body.messages).toContain('Password diperlukan');
     });
 
     it('should return a 401 error if email is not found', async () => {

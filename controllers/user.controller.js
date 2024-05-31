@@ -16,10 +16,6 @@ const transporter = nodemailer.createTransport({
 
 
 const userRegister = async (req, res) => {
-    if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-    }
-
     const { name, password, email, is_admin, address } = req.body;
 
     // Validasi input
@@ -72,10 +68,10 @@ const userRegister = async (req, res) => {
     } catch (error) {
         console.error(error);
 
-        if(error.name === 'SequelizeUniqueConstraintError') {
+        if (error.name === 'SequelizeUniqueConstraintError') {
             return res.status(400).send({
                 message: "Email telah digunakan"
-            })
+            });
         }
         return res.status(500).send({
             message: "Terjadi kesalahan saat mendaftarkan pengguna"

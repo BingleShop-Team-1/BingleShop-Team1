@@ -28,7 +28,7 @@ describe('POST /users/register', () => {
             email: 'newuser@example.com',
             password: 'password123',
             address: 'Yogyakarta',
-            is_admin: 'false'
+            is_admin: false
         };
 
         userMock.mockResolvedValue(newUser);

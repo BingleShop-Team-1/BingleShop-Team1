@@ -20,7 +20,7 @@ module.exports = {
       status: {
         allowNull: false,
         defaultValue: 'pending',
-        type: Sequelize.ENUM('pending','success'),
+        type: Sequelize.STRING
       },
       quantity: {
         allowNull: false,

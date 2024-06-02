@@ -13,7 +13,7 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-
+const baseUrl = process.env.BASE_URL
 
 const userRegister = async (req, res) => {
     const { name, password, email, is_admin, address } = req.body;
@@ -50,7 +50,7 @@ const userRegister = async (req, res) => {
         });
 
         // Kirim email verifikasi
-        const verificationLink = `http://localhost:3002/verify-email?token=${verificationToken}`;
+        const verificationLink = `${baseUrl}/verify-email?token=${verificationToken}`;
         const mailOptions = {
             from: process.env.EMAIL_USER,
             to: email,

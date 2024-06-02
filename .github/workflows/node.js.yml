@@ -137,5 +137,6 @@ jobs:
           key: ${{ secrets.SSHKEY }}
           port: ${{ secrets.SSHPORT }}
           script: |
+            chmod 700 -R ./BingleShop-Team1/
             npm install --silent
             pm2 restart binar-backend

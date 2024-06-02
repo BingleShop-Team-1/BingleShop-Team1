@@ -60,13 +60,17 @@ const userRegister = async (req, res) => {
             html: `<p>Hi ${name},</p><p>Please verify your email by clicking on the following link: <a href="${verificationLink}">${verificationLink}</a></p>`
         };
         console.log("State sebelum kirim email: ", email);
-        await transporter.sendMail(mailOptions);
-        console.log("Setelah kirim email: ", email);
 
+        if (process.env.NODE_ENV !== 'test') {
+            await transporter.sendMail(mailOptions);
+            console.log("Setelah kirim email: ", email);
+        } 
+        
         // Kembalikan respons sukses
         return res.status(201).send({
             message: "Pengguna berhasil didaftarkan. Silakan verifikasi email Anda."
         });
+
 
     } catch (error) {
         console.error(error);

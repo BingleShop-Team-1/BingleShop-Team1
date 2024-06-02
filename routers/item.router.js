@@ -2,7 +2,7 @@ const router = require("express").Router();
 const { isAdmin, isAuthenticated } = require('../middlewares');
 
 const controller = require("../controllers/item.controller");
-const {uploader} = require("../libs/media.handling");
+const { uploader } = require("../libs/media.handling");
 
 router.get("/", controller.getItems);
 router.get("/:id", controller.getDetailItem);

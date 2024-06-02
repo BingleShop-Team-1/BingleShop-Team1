@@ -28,6 +28,7 @@ const userRegister = async (req, res) => {
     try {
         // Periksa apakah email sudah digunakan
         const existingEmail = await User.findOne({ where: { email } });
+        console.log("existingEmail: ", existingEmail)
         if (existingEmail) {
             return res.status(400).send({
                 message: "Email telah digunakan"
@@ -37,6 +38,7 @@ const userRegister = async (req, res) => {
         // Hash password dan buat token verifikasi
         const hashedPassword = await bcrypt.hash(password, 10);
         const verificationToken = jwt.sign({ email }, secretKey, { expiresIn: '1h' });
+        console.log("verificationToken: ", verificationToken);
 
         // Buat pengguna baru
         const user = await User.create({
@@ -57,8 +59,9 @@ const userRegister = async (req, res) => {
             subject: 'Email Verification',
             html: `<p>Hi ${name},</p><p>Please verify your email by clicking on the following link: <a href="${verificationLink}">${verificationLink}</a></p>`
         };
-
+        console.log("State sebelum kirim email: ", email);
         await transporter.sendMail(mailOptions);
+        console.log("Setelah kirim email: ", email);
 
         // Kembalikan respons sukses
         return res.status(201).send({
@@ -73,6 +76,7 @@ const userRegister = async (req, res) => {
                 message: "Email telah digunakan"
             });
         }
+        console.log("Error disini: ", error)
         return res.status(500).send({
             message: "Terjadi kesalahan saat mendaftarkan pengguna"
         });
